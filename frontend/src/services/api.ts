@@ -9,6 +9,18 @@ const api = axios.create({
   },
 });
 
+// Interceptor para agregar token JWT a las peticiones
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 export interface Estudiante {
   id_estudiante: string;
   nombres: string;
@@ -28,6 +40,47 @@ export interface CreateEstudianteDto {
   semestre_actual?: number;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  access_token: string;
+  user: {
+    id: string;
+    email: string;
+    nombres: string;
+    apellidos: string;
+  };
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+  nombres: string;
+  apellidos: string;
+}
+
+// Servicio de Autenticación
+export const authService = {
+  async login(credentials: LoginRequest): Promise<LoginResponse> {
+    const response = await api.post<LoginResponse>('/auth/login', credentials);
+    return response.data;
+  },
+
+  async register(data: RegisterRequest): Promise<LoginResponse> {
+    const response = await api.post<LoginResponse>('/auth/register', data);
+    return response.data;
+  },
+
+  async logout(): Promise<void> {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+  },
+};
+
+// Servicio de Estudiantes
 export const estudiantesService = {
   async getAll(search?: string): Promise<Estudiante[]> {
     const params = search ? { search } : {};
@@ -55,6 +108,40 @@ export const estudiantesService = {
 
   async delete(id: string): Promise<void> {
     await api.delete(`/estudiantes/${id}`);
+  },
+
+  async exportCSV(): Promise<Blob> {
+    const response = await api.get('/estudiantes/export/csv', {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+};
+
+// Servicio de Predicciones
+export const prediccionesService = {
+  async getAll(): Promise<any[]> {
+    const response = await api.get('/predicciones');
+    return response.data;
+  },
+
+  async getByEstudiante(id_estudiante: string): Promise<any[]> {
+    const response = await api.get(`/predicciones/estudiante/${id_estudiante}`);
+    return response.data;
+  },
+
+  async generate(id_estudiante: string): Promise<any> {
+    const response = await api.post('/predicciones/generar', {
+      id_estudiante,
+    });
+    return response.data;
+  },
+
+  async getReport(id_prediccion: string): Promise<Blob> {
+    const response = await api.get(`/predicciones/${id_prediccion}/reporte`, {
+      responseType: 'blob',
+    });
+    return response.data;
   },
 };
 

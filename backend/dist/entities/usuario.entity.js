@@ -20,17 +20,29 @@ __decorate([
     __metadata("design:type", String)
 ], Usuario.prototype, "id_usuario", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 255, unique: true, nullable: false }),
+    __metadata("design:type", String)
+], Usuario.prototype, "email", void 0);
+__decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 100, nullable: false }),
+    __metadata("design:type", String)
+], Usuario.prototype, "nombres", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 100, nullable: false }),
+    __metadata("design:type", String)
+], Usuario.prototype, "apellidos", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'varchar', length: 100, nullable: true }),
     __metadata("design:type", String)
 ], Usuario.prototype, "nombre_usuario", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: 'varchar', length: 50, nullable: false }),
+    (0, typeorm_1.Column)({ type: 'varchar', length: 50, nullable: false, default: 'usuario' }),
     __metadata("design:type", String)
 ], Usuario.prototype, "rol", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'varchar', length: 255, nullable: false }),
     __metadata("design:type", String)
-], Usuario.prototype, "password_hash", void 0);
+], Usuario.prototype, "password", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' }),
     __metadata("design:type", Date)
@@ -40,7 +52,7 @@ __decorate([
     __metadata("design:type", Date)
 ], Usuario.prototype, "updated_at", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => estudiante_entity_1.Estudiante, estudiante => estudiante.usuario),
+    (0, typeorm_1.OneToMany)(() => estudiante_entity_1.Estudiante, (estudiante) => estudiante.usuario),
     __metadata("design:type", Array)
 ], Usuario.prototype, "estudiantes", void 0);
 exports.Usuario = Usuario = __decorate([

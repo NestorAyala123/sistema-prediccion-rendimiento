@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { prediccionesService } from '../services/api';
 
 interface Prediccion {
   id_prediccion: string;
@@ -15,6 +16,7 @@ const Predicciones: React.FC = () => {
   const [predicciones, setPredicciones] = useState<Prediccion[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('todos');
+  const [generatingReport, setGeneratingReport] = useState<string | null>(null);
 
   useEffect(() => {
     // Simular carga de datos
@@ -58,18 +60,44 @@ const Predicciones: React.FC = () => {
     }, 1000);
   }, []);
 
-  const handleGenerarNuevas = () => {
-    alert('Generando nuevas predicciones...');
+  const handleGenerarNuevas = async () => {
+    try {
+      // Placeholder para generar nuevas predicciones
+      alert(
+        'Generando nuevas predicciones para todos los estudiantes...\nEsta funcionalidad estará disponible cuando el backend esté completo.'
+      );
+    } catch (err) {
+      console.error('Error al generar predicciones:', err);
+      alert('Error al generar predicciones');
+    }
   };
 
   const handleVerDetalles = (prediccion: Prediccion) => {
     alert(`Ver detalles de predicción: ${prediccion.id_prediccion}`);
   };
 
-  const handleGenerarReporte = (prediccion: Prediccion) => {
-    alert(
-      `Generando reporte para: ${prediccion.nombres} ${prediccion.apellidos}`
-    );
+  const handleGenerarReporte = async (prediccion: Prediccion) => {
+    try {
+      setGeneratingReport(prediccion.id_prediccion);
+      const blob = await prediccionesService.getReport(
+        prediccion.id_prediccion
+      );
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reporte-${prediccion.id_prediccion}-${
+        new Date().toISOString().split('T')[0]
+      }.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Error al descargar reporte:', err);
+      alert('El reporte no está disponible aún');
+    } finally {
+      setGeneratingReport(null);
+    }
   };
 
   const handleRecalcular = (prediccion: Prediccion) => {
@@ -136,7 +164,11 @@ const Predicciones: React.FC = () => {
             Predicciones Generadas
           </h2>
           <div className="flex space-x-4">
+            <label htmlFor="filter-select" className="sr-only">
+              Filtrar predicciones por nivel de riesgo
+            </label>
             <select
+              id="filter-select"
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -209,9 +241,12 @@ const Predicciones: React.FC = () => {
                 </button>
                 <button
                   onClick={() => handleGenerarReporte(prediccion)}
-                  className="text-green-600 hover:text-green-900 text-sm font-medium"
+                  disabled={generatingReport === prediccion.id_prediccion}
+                  className="text-green-600 hover:text-green-900 text-sm font-medium disabled:opacity-50"
                 >
-                  Generar Reporte
+                  {generatingReport === prediccion.id_prediccion
+                    ? 'Descargando...'
+                    : 'Generar Reporte'}
                 </button>
                 <button
                   onClick={() => handleRecalcular(prediccion)}
@@ -237,4 +272,3 @@ const Predicciones: React.FC = () => {
 };
 
 export default Predicciones;
-

@@ -13,6 +13,7 @@ const database_config_1 = require("./database/database.config");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const estudiantes_module_1 = require("./modules/estudiantes/estudiantes.module");
+const auth_module_1 = require("./auth/auth.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -20,6 +21,7 @@ exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             typeorm_1.TypeOrmModule.forRoot(database_config_1.databaseConfig),
+            auth_module_1.AuthModule,
             estudiantes_module_1.EstudiantesModule,
         ],
         controllers: [app_controller_1.AppController],

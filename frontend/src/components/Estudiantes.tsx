@@ -283,6 +283,9 @@ const Estudiantes: React.FC = () => {
                 Agregar Nuevo Estudiante
               </h2>
               <button
+                type="button"
+                title="Cerrar modal"
+                aria-label="Cerrar modal"
                 onClick={handleCloseModal}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -371,10 +374,11 @@ const Estudiantes: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="semestre_actual" className="block text-sm font-medium text-gray-700 mb-2">
                     Semestre Actual <span className="text-red-500">*</span>
                   </label>
                   <input
+                    id="semestre_actual"
                     type="number"
                     name="semestre_actual"
                     value={formData.semestre_actual}
@@ -382,6 +386,8 @@ const Estudiantes: React.FC = () => {
                     required
                     min="1"
                     max="10"
+                    placeholder="Ingrese el semestre actual (ej. 1)"
+                    title="Semestre actual del estudiante"
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>

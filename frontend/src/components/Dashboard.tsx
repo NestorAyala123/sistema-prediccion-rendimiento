@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { estudiantesService } from '../services/api';
 
 interface DashboardStats {
   totalEstudiantes: number;
@@ -31,6 +32,29 @@ const Dashboard: React.FC = () => {
       setLoading(false);
     }, 1000);
   }, []);
+
+  const handleExportData = async () => {
+    try {
+      const blob = await estudiantesService.exportCSV();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `estudiantes-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err) {
+      console.error('Error al exportar datos:', err);
+      alert('Error al exportar datos');
+    }
+  };
+
+  const handleGenerateReport = () => {
+    alert(
+      'Generando reporte de predicciones...\nEsta funcionalidad estará disponible pronto.'
+    );
+  };
 
   if (loading) {
     return (
@@ -172,15 +196,13 @@ const Dashboard: React.FC = () => {
               Generar Nueva Predicción
             </button>
             <button
-              onClick={() => alert('Funcionalidad de reportes en desarrollo')}
+              onClick={handleGenerateReport}
               className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
             >
               Ver Reportes
             </button>
             <button
-              onClick={() =>
-                alert('Funcionalidad de exportación en desarrollo')
-              }
+              onClick={handleExportData}
               className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors"
             >
               Exportar Datos
@@ -193,4 +215,3 @@ const Dashboard: React.FC = () => {
 };
 
 export default Dashboard;
-
