@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
+import LanguageToast from './LanguageToast';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [sidebarExpanded, setSidebarExpanded] = useState(true);
@@ -59,6 +60,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         <main className="flex-1">{children}</main>
       </div>
       <Footer />
+      <LanguageToast />
     </div>
   );
 };

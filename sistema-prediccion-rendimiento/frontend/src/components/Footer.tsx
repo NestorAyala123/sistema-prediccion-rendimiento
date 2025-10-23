@@ -7,7 +7,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-white dark:bg-gray-800 border-t dark:border-gray-700 mt-8">
       <div className="container mx-auto px-4 py-4 text-sm text-gray-600 dark:text-gray-400 flex justify-between">
-        <div>{t('footer')}</div>
+        <div>{t('footer.copyright')}</div>
         <div className="space-x-4">
           <button
             onClick={() => window.alert('Support contact')}

@@ -183,28 +183,28 @@ const Estudiantes: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          {t('studentManagement')}
+          {t('students.management.title')}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">{t('academicData')}</p>
+        <p className="text-gray-600 dark:text-gray-400">{t('students.management.description')}</p>
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Student List
+            {t('students.title')}
           </h2>
           <button
             onClick={handleAgregarEstudiante}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
           >
-            {t('addStudent')}
+            {t('students.add')}
           </button>
         </div>
 
         <div className="mb-4">
           <input
             type="text"
-            placeholder={t('searchStudents')}
+              placeholder={t('students.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -217,10 +217,10 @@ const Estudiantes: React.FC = () => {
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t('name')}
+                  {t('students.fields.name')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t('email')}
+                  {t('students.fields.email')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                   Semestre
@@ -229,7 +229,7 @@ const Estudiantes: React.FC = () => {
                   Nivel de Riesgo
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                  {t('actions')}
+                  {t('students.actions.text')}
                 </th>
               </tr>
             </thead>
@@ -267,19 +267,19 @@ const Estudiantes: React.FC = () => {
                       onClick={() => handleVerDetalles(estudiante)}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 mr-3"
                     >
-                      View Details
+                      {t('students.actions.viewDetails')}
                     </button>
                     <button
                       onClick={() => handleGenerarPrediccion(estudiante)}
                       className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 mr-3"
                     >
-                      Generate Prediction
+                      {t('students.actions.generatePrediction')}
                     </button>
                     <button
                       onClick={() => handleEliminar(estudiante)}
                       className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300"
                     >
-                      {t('delete')}
+                      {t('students.actions.delete')}
                     </button>
                   </td>
                 </tr>
@@ -307,7 +307,7 @@ const Estudiantes: React.FC = () => {
               <div className="space-y-2 mb-3">
                 <div>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
-                    {t('email')}
+                    {t('students.fields.email')}
                   </p>
                   <p className="text-sm text-gray-900 dark:text-gray-100">
                     {estudiante.email}
@@ -316,7 +316,7 @@ const Estudiantes: React.FC = () => {
                 <div className="flex justify-between">
                   <div>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Semestre
+                      {t('students.fields.semester')}
                     </p>
                     <p className="text-sm text-gray-900 dark:text-gray-100">
                       {estudiante.semestre_actual}
@@ -324,7 +324,7 @@ const Estudiantes: React.FC = () => {
                   </div>
                   <div>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Nivel de Riesgo
+                      {t('students.fields.riskLevel')}
                     </p>
                     <span
                       className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRiskColor(
@@ -342,19 +342,19 @@ const Estudiantes: React.FC = () => {
                   onClick={() => handleVerDetalles(estudiante)}
                   className="flex-1 text-xs bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 rounded hover:bg-blue-200 dark:hover:bg-blue-800"
                 >
-                  View Details
+                  {t('students.actions.viewDetails')}
                 </button>
                 <button
                   onClick={() => handleGenerarPrediccion(estudiante)}
                   className="flex-1 text-xs bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 py-2 rounded hover:bg-green-200 dark:hover:bg-green-800"
                 >
-                  Prediction
+                  {t('students.actions.generatePrediction')}
                 </button>
                 <button
                   onClick={() => handleEliminar(estudiante)}
                   className="flex-1 text-xs bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 py-2 rounded hover:bg-red-200 dark:hover:bg-red-800"
                 >
-                  {t('delete')}
+                  {t('students.actions.delete')}
                 </button>
               </div>
             </div>
@@ -368,7 +368,7 @@ const Estudiantes: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {t('addStudent')}
+                {t('students.add')}
               </h2>
               <button
                 type="button"
@@ -403,7 +403,7 @@ const Estudiantes: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    National ID <span className="text-red-500">*</span>
+                    {t('students.fields.nationalId')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -418,7 +418,7 @@ const Estudiantes: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nombres <span className="text-red-500">*</span>
+                    {t('students.fields.firstName')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -433,7 +433,7 @@ const Estudiantes: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Apellidos <span className="text-red-500">*</span>
+                    {t('students.fields.lastName')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -466,7 +466,7 @@ const Estudiantes: React.FC = () => {
                     htmlFor="semestre_actual"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
-                    Semestre Actual <span className="text-red-500">*</span>
+                    {t('students.fields.semester')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="semestre_actual"
@@ -488,7 +488,7 @@ const Estudiantes: React.FC = () => {
                     htmlFor="promedio_notas"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
-                    {t('averageGrade')}
+                    {t('students.fields.averageGrade')}
                   </label>
                   <input
                     id="promedio_notas"
@@ -510,7 +510,7 @@ const Estudiantes: React.FC = () => {
                     htmlFor="porcentaje_asistencia"
                     className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                   >
-                    {t('attendancePercentage')}
+                    {t('students.fields.attendancePercentage')}
                   </label>
                   <input
                     id="porcentaje_asistencia"
@@ -535,7 +535,7 @@ const Estudiantes: React.FC = () => {
                   disabled={saving}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                 >
-                  {t('cancel')}
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -545,10 +545,10 @@ const Estudiantes: React.FC = () => {
                   {saving ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      {t('loading')}
+                      {t('common.loading')}
                     </>
                   ) : (
-                    t('save')
+                    t('common.save')
                   )}
                 </button>
               </div>

@@ -84,7 +84,7 @@ const Predicciones: React.FC = () => {
   const handleSubmitPrediction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!studentId.trim()) {
-      alert(t('error') + ': ' + t('selectStudent'));
+      alert(t('common.error') + ': ' + t('predictions.selectStudent'));
       return;
     }
 
@@ -110,7 +110,7 @@ const Predicciones: React.FC = () => {
       handleCloseModal();
     } catch (err) {
       console.error('Error al generar predicciones:', err);
-      alert(t('error') + ': Error al generar predicciones');
+      alert(t('common.error') + ': Error al generar predicciones');
     } finally {
       setGeneratingPrediction(false);
     }
@@ -219,13 +219,13 @@ const Predicciones: React.FC = () => {
   const translateRiskLevel = (nivel: string) => {
     switch (nivel?.toLowerCase()) {
       case 'alto':
-        return t('alto');
+        return t('predictions.riskLevels.high');
       case 'medio':
-        return t('medio');
+        return t('predictions.riskLevels.medium');
       case 'bajo':
-        return t('bajo');
+        return t('predictions.riskLevels.low');
       case 'crítico':
-        return t('critico');
+        return t('predictions.riskLevels.critical');
       default:
         return nivel;
     }
@@ -243,15 +243,15 @@ const Predicciones: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          {t('managementStudents')}
+          {t('predictions.management.title')}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">{t('riskAnalysis')}</p>
+        <p className="text-gray-600 dark:text-gray-400">{t('predictions.management.description')}</p>
       </div>
 
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            {t('generatedPredictions')}
+            {t('predictions.management.predictions')}
           </h2>
           <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
             <label htmlFor="filter-select" className="sr-only">
@@ -263,16 +263,16 @@ const Predicciones: React.FC = () => {
               onChange={(e) => setFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="todos">{t('allLevels')}</option>
-              <option value="alto">{t('highRisk')}</option>
-              <option value="medio">{t('mediumRisk')}</option>
-              <option value="bajo">{t('lowRisk')}</option>
+              <option value="todos">{t('predictions.allLevels')}</option>
+              <option value="alto">{t('predictions.riskLevels.high')}</option>
+              <option value="medio">{t('predictions.riskLevels.medium')}</option>
+              <option value="bajo">{t('predictions.riskLevels.low')}</option>
             </select>
             <button
               onClick={handleGenerarNuevas}
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors whitespace-nowrap"
             >
-              {t('addPrediction')}
+              {t('predictions.add')}
             </button>
           </div>
         </div>
@@ -315,7 +315,7 @@ const Predicciones: React.FC = () => {
 
               <div className="bg-gray-100 dark:bg-gray-600 p-4 rounded-md mb-4">
                 <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                  {t('keyFactors')}:
+                  {t('predictions.keyFactors')}:
                 </h4>
                 <p className="text-sm text-gray-600 dark:text-gray-300">
                   {prediccion.factores_clave}
@@ -327,7 +327,7 @@ const Predicciones: React.FC = () => {
                   onClick={() => handleVerDetalles(prediccion)}
                   className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-300 text-sm font-medium"
                 >
-                  {t('viewDetails')}
+                  {t('predictions.viewDetails')}
                 </button>
                 <button
                   onClick={() => handleGenerarReporte(prediccion)}
@@ -335,20 +335,20 @@ const Predicciones: React.FC = () => {
                   className="text-green-600 dark:text-green-400 hover:text-green-900 dark:hover:text-green-300 text-sm font-medium disabled:opacity-50"
                 >
                   {generatingReport === prediccion.id_prediccion
-                    ? t('loading')
-                    : t('generateReport')}
+                    ? t('predictions.loading')
+                    : t('predictions.generateReport')}
                 </button>
                 <button
                   onClick={() => handleRecalcular(prediccion)}
                   className="text-orange-600 dark:text-orange-400 hover:text-orange-900 dark:hover:text-orange-300 text-sm font-medium"
                 >
-                  {t('recalculate')}
+                  {t('predictions.recalculate')}
                 </button>
                 <button
                   onClick={() => handleEliminarPrediccion(prediccion)}
                   className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-300 text-sm font-medium"
                 >
-                  {t('delete')}
+                  {t('predictions.delete')}
                 </button>
               </div>
             </div>
@@ -358,7 +358,7 @@ const Predicciones: React.FC = () => {
         {filteredPredicciones.length === 0 && (
           <div className="text-center py-8">
             <p className="text-gray-500 dark:text-gray-400">
-              {t('noPredictionsFound')}
+              {t('predictions.noResults.predictions')}
             </p>
           </div>
         )}
@@ -370,7 +370,7 @@ const Predicciones: React.FC = () => {
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 max-w-md w-full">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                {t('addPrediction')}
+                {t('predictions.add')}
               </h2>
               <button
                 type="button"
@@ -398,7 +398,7 @@ const Predicciones: React.FC = () => {
             <form onSubmit={handleSubmitPrediction}>
               <div className="mb-4">
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  {t('selectStudent')} <span className="text-red-500">*</span>
+                  {t('predictions.selectStudent')} <span className="text-red-500">*</span>
                 </label>
                 {loadingStudents ? (
                   <div className="flex items-center justify-center p-4">
@@ -412,7 +412,7 @@ const Predicciones: React.FC = () => {
                     title="Select a student to generate prediction"
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">-- {t('selectStudent')} --</option>
+                    <option value="">--                   {t('predictions.selectStudent')} --</option>
                     {estudiantes.map((est) => (
                       <option key={est.id_estudiante} value={est.id_estudiante}>
                         {est.nombres} {est.apellidos} (ID: {est.id_estudiante})
@@ -429,7 +429,7 @@ const Predicciones: React.FC = () => {
                   disabled={generatingPrediction}
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50"
                 >
-                  {t('cancel')}
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
@@ -439,10 +439,10 @@ const Predicciones: React.FC = () => {
                   {generatingPrediction ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      {t('loading')}
+                      {t('common.loading')}
                     </>
                   ) : (
-                    t('generatePrediction')
+                    t('students.actions.generatePrediction')
                   )}
                 </button>
               </div>

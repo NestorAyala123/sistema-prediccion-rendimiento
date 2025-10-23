@@ -21,9 +21,9 @@ const Sidebar: React.FC<Props> = ({
   const { t } = useTranslation();
 
   const items = [
-    { to: '/', label: t('dashboard'), icon: 'M3 12h18' },
-    { to: '/estudiantes', label: t('students'), icon: 'M5 3v4' },
-    { to: '/predicciones', label: t('predictions'), icon: 'M12 6v6' },
+    { to: '/', label: t('sidebar.dashboard'), icon: 'M3 12h18' },
+    { to: '/estudiantes', label: t('sidebar.students'), icon: 'M5 3v4' },
+    { to: '/predicciones', label: t('sidebar.predictions'), icon: 'M12 6v6' },
   ];
 
   // Mobile overlay
@@ -38,7 +38,7 @@ const Sidebar: React.FC<Props> = ({
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm font-semibold text-gray-800">Menu</div>
             <button onClick={onCloseMobile} className="text-gray-600">
-              {t('cancel')}
+              {t('common.cancel')}
             </button>
           </div>
           <nav className="space-y-1">
@@ -129,6 +129,7 @@ const Sidebar: React.FC<Props> = ({
           <span className="text-gray-700 dark:text-gray-200">D</span>ashboard ·{' '}
           <span className="text-gray-700 dark:text-gray-200">S</span>tudents
         </div>
+        {/* Enlace al formulario de accesibilidad removido: todas las opciones ahora están disponibles en el Menú de accesibilidad en la esquina superior derecha. */}
       </div>
     </aside>
   );

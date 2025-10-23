@@ -71,9 +71,9 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
-          Control Panel
+          {t('sidebar.dashboard')}
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">{t('loading')}</p>
+        <p className="text-gray-600 dark:text-gray-400">{t('common.loading')}</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -96,7 +96,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Total Students
+                {t('app.totalStudents')}
               </p>
               <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
                 {stats.totalEstudiantes}
@@ -124,7 +124,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Generated Predictions
+                {t('predictions.management.predictions')}
               </p>
               <p className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
                 {stats.totalPredicciones}
@@ -152,7 +152,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                High Risk
+                {t('predictions.riskLevels.high')}
               </p>
               <p className="text-2xl font-semibold text-red-600 dark:text-red-400">
                 {stats.riesgoAlto}
@@ -165,12 +165,12 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Risk Distribution
+            {t('app.riskDistribution')}
           </h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                Low Risk
+                {t('predictions.riskLevels.low')}
               </span>
               <span className="text-sm font-medium text-green-600 dark:text-green-400">
                 {stats.riesgoBajo}
@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                Medium Risk
+                {t('predictions.riskLevels.medium')}
               </span>
               <span className="text-sm font-medium text-yellow-600 dark:text-yellow-400">
                 {stats.riesgoMedio}
@@ -186,7 +186,7 @@ const Dashboard: React.FC = () => {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">
-                High Risk
+                {t('predictions.riskLevels.high')}
               </span>
               <span className="text-sm font-medium text-red-600 dark:text-red-400">
                 {stats.riesgoAlto}
@@ -197,26 +197,26 @@ const Dashboard: React.FC = () => {
 
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
-            Quick Actions
+            {t('app.quickActions')}
           </h3>
           <div className="space-y-3">
             <button
               onClick={() => (window.location.href = '/predicciones')}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors"
             >
-              {t('addPrediction')}
+              {t('predictions.add')}
             </button>
             <button
               onClick={handleGenerateReport}
               className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors"
             >
-              {t('viewReports')}
+              {t('predictions.viewReports')}
             </button>
             <button
               onClick={handleExportData}
               className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-md transition-colors"
             >
-              {t('exportData')}
+              {t('predictions.export')}
             </button>
           </div>
         </div>

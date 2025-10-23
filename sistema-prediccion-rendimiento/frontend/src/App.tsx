@@ -11,6 +11,7 @@ import './App.css';
 import Dashboard from './components/Dashboard';
 import Estudiantes from './components/Estudiantes';
 import Predicciones from './components/Predicciones';
+import AccessibilityForm from './components/AccessibilityForm';
 import Login from './components/Login';
 import Register from './components/Register';
 import Layout from './components/Layout';
@@ -43,6 +44,7 @@ function App() {
                       <Route path="/" element={<Dashboard />} />
                       <Route path="/estudiantes" element={<Estudiantes />} />
                       <Route path="/predicciones" element={<Predicciones />} />
+                      <Route path="/accessibility-form" element={<AccessibilityForm />} />
                       <Route path="*" element={<Navigate to="/" replace />} />
                     </Routes>
                   </Layout>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTranslation } from '../i18n/useTranslation';
+import AccessibilityMenuInline from './AccessibilityMenuInline';
 
 type Props = {
   onOpenMobile?: () => void;
@@ -84,11 +85,8 @@ const Navbar: React.FC<Props> = ({
           </svg>
         </button>
 
-        <Link
-          to="/"
-          className="text-lg font-bold text-gray-800 dark:text-gray-100"
-        >
-          Prediction System
+        <Link to="/" className="text-lg font-bold text-gray-800 dark:text-gray-100">
+          {t('app.name')}
         </Link>
       </div>
 
@@ -104,7 +102,7 @@ const Navbar: React.FC<Props> = ({
             className="px-3 py-1 rounded-md text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Help"
           >
-            {t('help')}
+            {t('nav.help')}
           </button>
 
           <button
@@ -112,7 +110,7 @@ const Navbar: React.FC<Props> = ({
             className="px-3 py-1 rounded-md text-sm text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label="Logout"
           >
-            {t('logout')}
+            {t('nav.logout')}
           </button>
         </div>
 
@@ -153,9 +151,9 @@ const Navbar: React.FC<Props> = ({
           )}
         </button>
 
-        {/* Selector de idioma */}
+  {/* Selector de idioma */}
         <label htmlFor="lang-select" className="sr-only">
-          {t('language')}
+          {t('nav.language')}
         </label>
         <select
           id="lang-select"
@@ -167,6 +165,9 @@ const Navbar: React.FC<Props> = ({
           <option value="en">English</option>
           <option value="es">Español</option>
         </select>
+
+        {/* Menú de accesibilidad en la esquina superior derecha, junto al selector de idioma */}
+        <AccessibilityMenuInline />
       </div>
     </header>
   );
