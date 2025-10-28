@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { estudiantesService, CreateEstudianteDto } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Estudiante {
   id_estudiante: string;
@@ -24,6 +25,7 @@ const Estudiantes: React.FC = () => {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const { t } = useLanguage();
 
   useEffect(() => {
     loadEstudiantes();
@@ -36,7 +38,7 @@ const Estudiantes: React.FC = () => {
       setEstudiantes(data);
     } catch (err) {
       console.error('Error al cargar estudiantes:', err);
-      setError('Error al cargar estudiantes');
+      setError(t('estudiantes.errorCargar'));
     } finally {
       setLoading(false);
     }
@@ -86,7 +88,7 @@ const Estudiantes: React.FC = () => {
       !formData.apellidos ||
       !formData.email
     ) {
-      setError('Por favor complete todos los campos obligatorios');
+      setError(t('estudiantes.completeCampos'));
       return;
     }
 
@@ -104,7 +106,7 @@ const Estudiantes: React.FC = () => {
       setError(
         err.response?.data?.message ||
           err.response?.data?.error ||
-          'Error al crear estudiante'
+          t('estudiantes.errorCrear')
       );
     } finally {
       setSaving(false);
@@ -112,20 +114,20 @@ const Estudiantes: React.FC = () => {
   };
   const handleVerDetalles = (estudiante: Estudiante) => {
     alert(
-      `Ver detalles de: ${estudiante.nombres} ${estudiante.apellidos}\n\nEsta funcionalidad está en desarrollo.`
+      `${t('estudiantes.verDetallesDe')}: ${estudiante.nombres} ${estudiante.apellidos}\n\n${t('estudiantes.enDesarrollo')}`
     );
   };
 
   const handleGenerarPrediccion = (estudiante: Estudiante) => {
     alert(
-      `Generando predicción para: ${estudiante.nombres} ${estudiante.apellidos}\n\nEsta funcionalidad está en desarrollo.`
+      `${t('estudiantes.generandoPara')}: ${estudiante.nombres} ${estudiante.apellidos}\n\n${t('estudiantes.enDesarrollo')}`
     );
   };
 
   const handleEliminar = async (estudiante: Estudiante) => {
     if (
       window.confirm(
-        `¿Está seguro de eliminar a ${estudiante.nombres} ${estudiante.apellidos}?`
+        `${t('estudiantes.confirmEliminar')}: ${estudiante.nombres} ${estudiante.apellidos}?`
       )
     ) {
       try {
@@ -133,7 +135,7 @@ const Estudiantes: React.FC = () => {
         await loadEstudiantes();
       } catch (err) {
         console.error('Error al eliminar estudiante:', err);
-        alert('Error al eliminar estudiante');
+        alert(t('estudiantes.errorEliminar'));
       }
     }
   };
@@ -171,29 +173,25 @@ const Estudiantes: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Estudiantes</h1>
-        <p className="text-gray-600">
-          Gestión de estudiantes y sus datos académicos
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('estudiantes.title')}</h1>
+        <p className="text-gray-600">{t('estudiantes.subtitle')}</p>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Lista de Estudiantes
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('estudiantes.listaTitulo')}</h2>
           <button
             onClick={handleAgregarEstudiante}
             className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
           >
-            Agregar Estudiante
+            {t('estudiantes.agregar')}
           </button>
         </div>
 
         <div className="mb-4">
           <input
             type="text"
-            placeholder="Buscar estudiantes..."
+            placeholder={t('estudiantes.buscarPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -205,19 +203,19 @@ const Estudiantes: React.FC = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Estudiante
+                  {t('estudiantes.colEstudiante')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Email
+                  {t('estudiantes.colEmail')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Semestre
+                  {t('estudiantes.colSemestre')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Nivel de Riesgo
+                  {t('estudiantes.colNivelRiesgo')}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Acciones
+                  {t('estudiantes.colAcciones')}
                 </th>
               </tr>
             </thead>
@@ -244,7 +242,7 @@ const Estudiantes: React.FC = () => {
                         estudiante.nivel_riesgo || 'Sin datos'
                       )}`}
                     >
-                      {estudiante.nivel_riesgo || 'Sin datos'}
+                      {estudiante.nivel_riesgo || t('estudiantes.sinDatos')}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -252,19 +250,19 @@ const Estudiantes: React.FC = () => {
                       onClick={() => handleVerDetalles(estudiante)}
                       className="text-blue-600 hover:text-blue-900 mr-3"
                     >
-                      Ver Detalles
+                      {t('estudiantes.verDetalles')}
                     </button>
                     <button
                       onClick={() => handleGenerarPrediccion(estudiante)}
                       className="text-green-600 hover:text-green-900 mr-3"
                     >
-                      Generar Predicción
+                      {t('estudiantes.generarPrediccion')}
                     </button>
                     <button
                       onClick={() => handleEliminar(estudiante)}
                       className="text-red-600 hover:text-red-900"
                     >
-                      Eliminar
+                      {t('estudiantes.eliminar')}
                     </button>
                   </td>
                 </tr>
@@ -279,9 +277,7 @@ const Estudiantes: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Agregar Nuevo Estudiante
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-900">{t('estudiantes.modalTitle')}</h2>
               <button
                 type="button"
                 title="Cerrar modal"
@@ -315,7 +311,7 @@ const Estudiantes: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Cédula/ID <span className="text-red-500">*</span>
+                    {t('estudiantes.labelId')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -324,13 +320,13 @@ const Estudiantes: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="1234567890"
+                    placeholder={t('estudiantes.placeholderId')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Nombres <span className="text-red-500">*</span>
+                    {t('estudiantes.labelNombres')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -339,13 +335,13 @@ const Estudiantes: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Juan Carlos"
+                    placeholder={t('estudiantes.placeholderNombres')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Apellidos <span className="text-red-500">*</span>
+                    {t('estudiantes.labelApellidos')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
@@ -354,13 +350,13 @@ const Estudiantes: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="Pérez García"
+                    placeholder={t('estudiantes.placeholderApellidos')}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email <span className="text-red-500">*</span>
+                    {t('estudiantes.labelEmail')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="email"
@@ -369,13 +365,13 @@ const Estudiantes: React.FC = () => {
                     onChange={handleInputChange}
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    placeholder="estudiante@universidad.edu"
+                    placeholder={t('estudiantes.placeholderEmail')}
                   />
                 </div>
 
                 <div>
                   <label htmlFor="semestre_actual" className="block text-sm font-medium text-gray-700 mb-2">
-                    Semestre Actual <span className="text-red-500">*</span>
+                    {t('estudiantes.labelSemestre')} <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="semestre_actual"
@@ -386,8 +382,8 @@ const Estudiantes: React.FC = () => {
                     required
                     min="1"
                     max="10"
-                    placeholder="Ingrese el semestre actual (ej. 1)"
-                    title="Semestre actual del estudiante"
+                    placeholder={t('estudiantes.placeholderSemestre')}
+                    title={t('estudiantes.titleSemestre')}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -400,7 +396,7 @@ const Estudiantes: React.FC = () => {
                   disabled={saving}
                   className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
                 >
-                  Cancelar
+                  {t('estudiantes.cancelar')}
                 </button>
                 <button
                   type="submit"
@@ -410,10 +406,10 @@ const Estudiantes: React.FC = () => {
                   {saving ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Guardando...
+                      {t('estudiantes.guardando')}
                     </>
                   ) : (
-                    'Guardar Estudiante'
+                    t('estudiantes.guardarEstudiante')
                   )}
                 </button>
               </div>

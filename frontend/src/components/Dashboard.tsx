@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { estudiantesService } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface DashboardStats {
   totalEstudiantes: number;
@@ -17,6 +18,7 @@ const Dashboard: React.FC = () => {
     riesgoMedio: 0,
     riesgoBajo: 0,
   });
+  const { t } = useLanguage(); // Added translation hook
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,14 +48,12 @@ const Dashboard: React.FC = () => {
       document.body.removeChild(a);
     } catch (err) {
       console.error('Error al exportar datos:', err);
-      alert('Error al exportar datos');
+      alert(t('dashboard.errorExportar'));
     }
   };
 
   const handleGenerateReport = () => {
-    alert(
-      'Generando reporte de predicciones...\nEsta funcionalidad estará disponible pronto.'
-    );
+    alert(t('dashboard.generarReporteMensaje'));
   };
 
   if (loading) {
@@ -67,10 +67,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600">
-          Resumen del sistema de predicción académica
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('dashboard.title')}</h1>
+        <p className="text-gray-600">{t('dashboard.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -92,9 +90,7 @@ const Dashboard: React.FC = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">
-                Total Estudiantes
-              </p>
+              <p className="text-sm font-medium text-gray-600">{t('dashboard.totalEstudiantes')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {stats.totalEstudiantes}
               </p>
@@ -120,9 +116,7 @@ const Dashboard: React.FC = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">
-                Predicciones Generadas
-              </p>
+              <p className="text-sm font-medium text-gray-600">{t('dashboard.prediccionesGeneradas')}</p>
               <p className="text-2xl font-semibold text-gray-900">
                 {stats.totalPredicciones}
               </p>
@@ -193,19 +187,19 @@ const Dashboard: React.FC = () => {
               onClick={() => (window.location.href = '/predicciones')}
               className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
             >
-              Generar Nueva Predicción
+              {t('dashboard.generarPrediccion')}
             </button>
             <button
               onClick={handleGenerateReport}
               className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
             >
-              Ver Reportes
+              {t('dashboard.verReportes')}
             </button>
             <button
               onClick={handleExportData}
               className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors"
             >
-              Exportar Datos
+              {t('dashboard.exportarDatos')}
             </button>
           </div>
         </div>

@@ -1,20 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
+import AccessibilityMenu from './AccessibilityMenu';
+import TranscriptProvider from './TranscriptProvider';
+import VideoSubtitles from './VideoSubtitles';
 
 const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Estado para controlar el sidebar en móvil (overlay)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
-      <div className="flex flex-1 container mx-auto px-4 py-6">
-        <div className="hidden md:block md:mr-4">
-          <Sidebar />
+    <VideoSubtitles>
+      <TranscriptProvider>
+        <div className="min-h-screen bg-gray-50 flex flex-col">
+          <Navbar onToggleSidebar={() => setMobileSidebarOpen(!mobileSidebarOpen)} />
+          <div className="flex flex-1">
+            {/* Sidebar: pasa el estado móvil para que pueda mostrarse como overlay */}
+            <Sidebar mobileOpen={mobileSidebarOpen} setMobileOpen={setMobileSidebarOpen} />
+
+            {/* Contenido principal */}
+            <main className="flex-1 p-6">{children}</main>
+          </div>
+          <Footer />
+          <AccessibilityMenu />
         </div>
-        <main className="flex-1">{children}</main>
-      </div>
-      <Footer />
-    </div>
+      </TranscriptProvider>
+    </VideoSubtitles>
   );
 };
 

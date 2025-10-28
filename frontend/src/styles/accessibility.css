@@ -1,0 +1,530 @@
+/* Estilos de accesibilidad para el sistema de predicción académica */
+
+/* Variables CSS para configuración dinámica */
+:root {
+  /* Variables base del sistema */
+  --text-size-multiplier: 1;
+  --min-text-size: 0.8;
+  --max-text-size: 2.0;
+  --font-family: Arial, sans-serif;
+  --line-height: 1.5;
+  --letter-spacing: 0;
+  --animation-duration: 0.3s;
+  
+  /* Tamaños base de texto para diferentes elementos */
+  --base-font-size: 16px;
+  --small-font-size: 14px;
+  --large-font-size: 18px;
+
+  /* Variables del tema claro (default) */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f3f4f6;
+  --theme-bg-tertiary: #e5e7eb;
+  --theme-text-primary: #111827;
+  --theme-text-secondary: #4b5563;
+  --theme-text-muted: #6b7280;
+  --theme-border: #d1d5db;
+  --theme-border-light: #e5e7eb;
+  --theme-accent: #3b82f6;
+  --theme-accent-light: #60a5fa;
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+  --theme-error: #ef4444;
+  --theme-success: #10b981;
+  --theme-warning: #f59e0b;
+
+  /* Variables de control de UI */
+  --header-height: 64px;
+  --sidebar-width: 256px;
+  --z-index-modal: 1000;
+  --z-index-overlay: 900;
+  --z-index-dropdown: 800;
+  --border-radius-sm: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+}
+
+/* Configuración del tema oscuro */
+:root[data-theme="dark"] {
+  --theme-bg-primary: #111827;
+  --theme-bg-secondary: #1f2937;
+  --theme-bg-tertiary: #374151;
+  --theme-text-primary: #f9fafb;
+  --theme-text-secondary: #e5e7eb;
+  --theme-text-muted: #9ca3af;
+  --theme-border: #374151;
+  --theme-border-light: #4b5563;
+  --theme-accent: #60a5fa;
+  --theme-accent-light: #93c5fd;
+  --theme-shadow: rgba(0, 0, 0, 0.3);
+  --theme-error: #f87171;
+  --theme-success: #34d399;
+  --theme-warning: #fbbf24;
+}
+
+/* Aplicación del tema */
+body {
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Clases utilitarias basadas en el tema */
+.theme-bg-primary { background-color: var(--theme-bg-primary) !important; }
+.theme-bg-secondary { background-color: var(--theme-bg-secondary) !important; }
+.theme-bg-tertiary { background-color: var(--theme-bg-tertiary) !important; }
+.theme-text-primary { color: var(--theme-text-primary) !important; }
+.theme-text-secondary { color: var(--theme-text-secondary) !important; }
+.theme-text-muted { color: var(--theme-text-muted) !important; }
+.theme-border { border-color: var(--theme-border) !important; }
+
+/* Sobrescrituras selectivas para Tailwind */
+[data-theme="dark"] .bg-white { background-color: var(--theme-bg-secondary) !important; }
+[data-theme="dark"] .bg-gray-50 { background-color: var(--theme-bg-primary) !important; }
+[data-theme="dark"] .bg-gray-100 { background-color: var(--theme-bg-secondary) !important; }
+[data-theme="dark"] .bg-gray-200 { background-color: var(--theme-bg-tertiary) !important; }
+
+[data-theme="dark"] .text-gray-900 { color: var(--theme-text-primary) !important; }
+[data-theme="dark"] .text-gray-800 { color: var(--theme-text-primary) !important; }
+[data-theme="dark"] .text-gray-700 { color: var(--theme-text-secondary) !important; }
+[data-theme="dark"] .text-gray-600 { color: var(--theme-text-secondary) !important; }
+[data-theme="dark"] .text-gray-500 { color: var(--theme-text-muted) !important; }
+
+/* Control de tamaño de texto */
+.custom-text-size {
+  font-size: calc(var(--base-font-size) * var(--text-size-multiplier));
+}
+
+.custom-text-size * {
+  font-size: inherit;
+}
+
+/* Garantizar tamaños mínimos para elementos críticos */
+.custom-text-size h1 { font-size: max(24px, calc(32px * var(--text-size-multiplier))); }
+.custom-text-size h2 { font-size: max(20px, calc(24px * var(--text-size-multiplier))); }
+.custom-text-size h3 { font-size: max(18px, calc(20px * var(--text-size-multiplier))); }
+.custom-text-size p { font-size: max(14px, calc(16px * var(--text-size-multiplier))); }
+.custom-text-size button { font-size: max(14px, calc(16px * var(--text-size-multiplier))); }
+.custom-text-size input { font-size: max(14px, calc(16px * var(--text-size-multiplier))); }
+
+/* Asegurar legibilidad en elementos pequeños */
+.custom-text-size .text-sm {
+  font-size: max(12px, calc(14px * var(--text-size-multiplier)));
+}
+
+/* Elementos de formulario */
+.form-input,
+.form-select,
+.form-button {
+  background-color: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border);
+  transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .form-input,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] .form-button {
+  background-color: var(--theme-bg-tertiary);
+}
+
+/* Elementos interactivos */
+.interactive-element {
+  background-color: var(--theme-bg-secondary);
+  color: var(--theme-text-primary);
+  border: 1px solid var(--theme-border);
+  border-radius: var(--border-radius-md);
+  transition: all 0.2s ease;
+}
+
+.interactive-element:hover {
+  background-color: var(--theme-bg-tertiary);
+  border-color: var(--theme-border-light);
+}
+
+.interactive-element:focus {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+
+/* Excluir elementos específicos del tema oscuro */
+.theme-exclude {
+  background-color: inherit !important;
+  color: inherit !important;
+}
+
+/* Alto contraste */
+body.high-contrast {
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f8f9fa;
+  --theme-bg-tertiary: #e9ecef;
+  --theme-text-primary: #000000;
+  --theme-text-secondary: #0a0a0a;
+  --theme-text-muted: #1a1a1a;
+  --theme-border: #000000;
+  --theme-border-light: #1a1a1a;
+  --theme-accent: #0000ff;
+  --theme-accent-light: #0000cc;
+  
+  filter: contrast(1.5) brightness(1.2);
+}
+
+body.high-contrast * {
+  border-color: var(--theme-border) !important;
+}
+
+body.high-contrast .bg-white,
+body.high-contrast [class*="bg-gray-"] {
+  background-color: var(--theme-bg-primary) !important;
+  color: var(--theme-text-primary) !important;
+}
+
+body.high-contrast .text-gray-600,
+body.high-contrast .text-gray-700,
+body.high-contrast .text-gray-800 {
+  color: var(--theme-text-primary) !important;
+}
+
+body.high-contrast a,
+body.high-contrast button,
+body.high-contrast input,
+body.high-contrast select {
+  border: 2px solid var(--theme-border) !important;
+}
+
+/* Asegurar que los botones y enlaces sean claramente visibles en alto contraste */
+body.high-contrast a:hover,
+body.high-contrast button:hover {
+  background-color: var(--theme-text-primary) !important;
+  color: var(--theme-bg-primary) !important;
+}
+
+/* Tamaño de texto personalizado - solo se aplica cuando hay configuración personalizada */
+.accessibility-enhanced * {
+  font-size: calc(1rem * var(--text-size-multiplier, 1));
+  font-family: var(--font-family, Arial, sans-serif);
+  line-height: var(--line-height, 1.5);
+  letter-spacing: var(--letter-spacing, 0);
+}
+
+/* Botones grandes */
+.large-buttons button,
+.large-buttons .btn {
+  min-height: 48px !important;
+  min-width: 48px !important;
+  padding: 12px 24px !important;
+  font-size: 1.1rem !important;
+}
+
+/* Resaltado de enlaces */
+.link-highlight a {
+  background-color: #fef3c7 !important;
+  padding: 2px 4px !important;
+  border-radius: 4px !important;
+  text-decoration: underline !important;
+}
+
+.link-highlight a:focus {
+  background-color: #fbbf24 !important;
+  outline: 3px solid #3b82f6 !important;
+}
+
+/* Colores personalizados */
+.custom-colors {
+  --primary-color: #3b82f6;
+  --secondary-color: #10b981;
+  --accent-color: #f59e0b;
+}
+
+.custom-colors .bg-blue-600 {
+  background-color: var(--primary-color) !important;
+}
+
+.custom-colors .text-blue-600 {
+  color: var(--primary-color) !important;
+}
+
+/* Bloqueo de auto-scroll */
+.block-auto-scroll {
+  overflow: hidden !important;
+}
+
+.block-auto-scroll * {
+  scroll-behavior: auto !important;
+}
+
+/* Animaciones reducidas */
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Focus visible para navegación por teclado */
+*:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Mejoras de contraste */
+.high-contrast {
+  filter: contrast(1.2) brightness(1.1);
+}
+
+/* Tamaños de fuente accesibles */
+.text-sm {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.text-base {
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
+/* Espaciado accesible */
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+/* Botones accesibles */
+.btn-accessible {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-accessible:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-accessible:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Formularios accesibles */
+.form-input {
+  min-height: 44px;
+  padding: 0.75rem;
+  border: 2px solid #e5e7eb;
+  border-radius: 0.375rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.form-input:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.form-input:invalid {
+  border-color: #ef4444;
+}
+
+/* Labels accesibles */
+.form-label {
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Mensajes de error accesibles */
+.error-message {
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* Navegación accesible */
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  color: #6b7280;
+  text-decoration: none;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.nav-link.active {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+/* Skip links para navegación por teclado */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 1000;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Animaciones reducidas para usuarios sensibles */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Modo de alto contraste */
+@media (prefers-contrast: high) {
+  .bg-white {
+    background-color: #ffffff;
+  }
+  
+  .text-gray-600 {
+    color: #000000;
+  }
+  
+  .border-gray-300 {
+    border-color: #000000;
+  }
+}
+
+/* Tamaños de pantalla accesibles */
+@media (max-width: 640px) {
+  .btn-accessible {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+  
+  .form-input {
+    min-height: 48px;
+    font-size: 1rem;
+  }
+}
+
+/* Estados de carga accesibles */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Indicadores de estado accesibles */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-success {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Tooltips accesibles */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltip-text {
+  visibility: hidden;
+  width: 200px;
+  background-color: #1f2937;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -100px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltip-text {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* ARIA labels para lectores de pantalla */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

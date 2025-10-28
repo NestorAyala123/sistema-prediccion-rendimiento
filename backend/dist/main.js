@@ -15,7 +15,7 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
         transform: true,
     }));
-    const port = process.env.PORT || 3001;
+    const port = process.env.PORT || 4000;
     await app.listen(port);
     console.log(`🚀 Backend ejecutándose en http://localhost:${port}`);
 }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { prediccionesService } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface Prediccion {
   id_prediccion: string;
@@ -17,6 +18,7 @@ const Predicciones: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('todos');
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Simular carga de datos
@@ -64,7 +66,7 @@ const Predicciones: React.FC = () => {
     try {
       // Placeholder para generar nuevas predicciones
       alert(
-        'Generando nuevas predicciones para todos los estudiantes...\nEsta funcionalidad estará disponible cuando el backend esté completo.'
+        t('predicciones.alertGenerarNuevas')
       );
     } catch (err) {
       console.error('Error al generar predicciones:', err);
@@ -73,7 +75,7 @@ const Predicciones: React.FC = () => {
   };
 
   const handleVerDetalles = (prediccion: Prediccion) => {
-    alert(`Ver detalles de predicción: ${prediccion.id_prediccion}`);
+    alert(`${t('predicciones.verDetallesDe')}: ${prediccion.id_prediccion}`);
   };
 
   const handleGenerarReporte = async (prediccion: Prediccion) => {
@@ -94,7 +96,7 @@ const Predicciones: React.FC = () => {
       document.body.removeChild(a);
     } catch (err) {
       console.error('Error al descargar reporte:', err);
-      alert('El reporte no está disponible aún');
+      alert(t('predicciones.errorDescargar'));
     } finally {
       setGeneratingReport(null);
     }
@@ -103,10 +105,10 @@ const Predicciones: React.FC = () => {
   const handleRecalcular = (prediccion: Prediccion) => {
     if (
       window.confirm(
-        `¿Desea recalcular la predicción para ${prediccion.nombres} ${prediccion.apellidos}?`
+        `${t('predicciones.confirmRecalcular')}: ${prediccion.nombres} ${prediccion.apellidos}?`
       )
     ) {
-      alert('Recalculando predicción...');
+      alert(t('predicciones.recalculando'));
     }
   };
 
@@ -150,22 +152,16 @@ const Predicciones: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Predicciones de Riesgo
-        </h1>
-        <p className="text-gray-600">
-          Análisis de riesgo académico de los estudiantes
-        </p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('predicciones.title')}</h1>
+        <p className="text-gray-600">{t('predicciones.subtitle')}</p>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Predicciones Generadas
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('predicciones.generadasTitulo')}</h2>
           <div className="flex space-x-4">
             <label htmlFor="filter-select" className="sr-only">
-              Filtrar predicciones por nivel de riesgo
+              {t('predicciones.filtrarLabel')}
             </label>
             <select
               id="filter-select"
@@ -173,16 +169,16 @@ const Predicciones: React.FC = () => {
               onChange={(e) => setFilter(e.target.value)}
               className="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
-              <option value="todos">Todos los niveles</option>
-              <option value="alto">Riesgo Alto</option>
-              <option value="medio">Riesgo Medio</option>
-              <option value="bajo">Riesgo Bajo</option>
+              <option value="todos">{t('predicciones.optionTodos')}</option>
+              <option value="alto">{t('predicciones.optionAlto')}</option>
+              <option value="medio">{t('predicciones.optionMedio')}</option>
+              <option value="bajo">{t('predicciones.optionBajo')}</option>
             </select>
             <button
               onClick={handleGenerarNuevas}
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
             >
-              Generar Nuevas Predicciones
+              {t('predicciones.generarNuevas')}
             </button>
           </div>
         </div>
@@ -201,9 +197,7 @@ const Predicciones: React.FC = () => {
                   <p className="text-sm text-gray-600">
                     ID: {prediccion.id_estudiante}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    Fecha: {prediccion.fecha_prediccion}
-                  </p>
+                  <p className="text-sm text-gray-500">{t('predicciones.fecha')}: {prediccion.fecha_prediccion}</p>
                 </div>
                 <div className="flex space-x-2">
                   <span
@@ -224,9 +218,7 @@ const Predicciones: React.FC = () => {
               </div>
 
               <div className="bg-gray-50 p-4 rounded-md">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">
-                  Factores Clave:
-                </h4>
+                <h4 className="text-sm font-medium text-gray-700 mb-2">{t('predicciones.factoresClave')}:</h4>
                 <p className="text-sm text-gray-600">
                   {prediccion.factores_clave}
                 </p>
@@ -237,7 +229,7 @@ const Predicciones: React.FC = () => {
                   onClick={() => handleVerDetalles(prediccion)}
                   className="text-blue-600 hover:text-blue-900 text-sm font-medium"
                 >
-                  Ver Detalles
+                  {t('predicciones.verDetalles')}
                 </button>
                 <button
                   onClick={() => handleGenerarReporte(prediccion)}
@@ -245,14 +237,14 @@ const Predicciones: React.FC = () => {
                   className="text-green-600 hover:text-green-900 text-sm font-medium disabled:opacity-50"
                 >
                   {generatingReport === prediccion.id_prediccion
-                    ? 'Descargando...'
-                    : 'Generar Reporte'}
+                    ? t('predicciones.descargando')
+                    : t('predicciones.generarReporte')}
                 </button>
                 <button
                   onClick={() => handleRecalcular(prediccion)}
                   className="text-red-600 hover:text-red-900 text-sm font-medium"
                 >
-                  Recalcular
+                  {t('predicciones.recalcular')}
                 </button>
               </div>
             </div>
@@ -261,9 +253,7 @@ const Predicciones: React.FC = () => {
 
         {filteredPredicciones.length === 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-500">
-              No se encontraron predicciones con el filtro seleccionado.
-            </p>
+            <p className="text-gray-500">{t('predicciones.noEncontradas')}</p>
           </div>
         )}
       </div>

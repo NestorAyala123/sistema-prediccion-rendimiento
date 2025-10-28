@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: academic_backend
+    env_file:
+      - ./backend/.env
+    environment:
+      - PORT=4000
+      - JWT_SECRET=${JWT_SECRET:-change-this-secret}
+    volumes:
+      - ./backend/database:/app/database
+    ports:
+      - "4000:4000"
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: academic_frontend
+    ports:
+      - "3000:80" # mapear puerto 80 del contenedor a 3000 local
+    restart: unless-stopped

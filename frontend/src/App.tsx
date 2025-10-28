@@ -6,27 +6,26 @@ import {
   Navigate,
 } from 'react-router-dom';
 import './App.css';
+import './styles/accessibility.css';
 
 // Componentes principales
 import Dashboard from './components/Dashboard';
 import Estudiantes from './components/Estudiantes';
 import Predicciones from './components/Predicciones';
+import Soporte from './components/Soporte';
 import Login from './components/Login';
 import Register from './components/Register';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 function App() {
   return (
-    <Router
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true,
-      }}
-    >
+    <Router>
       <AuthProvider>
-        <Routes>
+        <LanguageProvider>
+          <Routes>
           {/* Rutas públicas */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -41,13 +40,15 @@ function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/estudiantes" element={<Estudiantes />} />
                     <Route path="/predicciones" element={<Predicciones />} />
+                    <Route path="/soporte" element={<Soporte />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Layout>
               </ProtectedRoute>
             }
           />
-        </Routes>
+          </Routes>
+        </LanguageProvider>
       </AuthProvider>
     </Router>
   );
