@@ -1,6 +1,7 @@
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 export declare class AuthController {
     private authService;
     constructor(authService: AuthService);
@@ -25,4 +26,13 @@ export declare class AuthController {
         };
     }>;
     getProfile(req: any): any;
+    updateProfile(req: any, dto: UpdateProfileDto): Promise<{
+        user: {
+            id: string;
+            email: string;
+            nombres: string;
+            apellidos: string;
+            rol: string;
+        };
+    }>;
 }

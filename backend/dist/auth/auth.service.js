@@ -58,6 +58,33 @@ let AuthService = class AuthService {
             },
         };
     }
+    async updateProfile(userId, dto) {
+        const usuario = await this.usuariosRepository.findOne({ where: { id_usuario: userId } });
+        if (!usuario) {
+            throw new common_1.UnauthorizedException('Usuario no encontrado');
+        }
+        if (dto.email && dto.email !== usuario.email) {
+            const exists = await this.usuariosRepository.findOne({ where: { email: dto.email } });
+            if (exists) {
+                throw new common_1.ConflictException('El email ya está registrado');
+            }
+            usuario.email = dto.email;
+        }
+        if (dto.nombres)
+            usuario.nombres = dto.nombres;
+        if (dto.apellidos)
+            usuario.apellidos = dto.apellidos;
+        await this.usuariosRepository.save(usuario);
+        return {
+            user: {
+                id: usuario.id_usuario,
+                email: usuario.email,
+                nombres: usuario.nombres,
+                apellidos: usuario.apellidos,
+                rol: usuario.rol,
+            },
+        };
+    }
     async login(loginDto) {
         const usuario = await this.usuariosRepository.findOne({
             where: { email: loginDto.email },

@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Usuario } from '../entities/usuario.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class AuthService {
@@ -54,6 +55,37 @@ export class AuthService {
 
     return {
       access_token: token,
+      user: {
+        id: usuario.id_usuario,
+        email: usuario.email,
+        nombres: usuario.nombres,
+        apellidos: usuario.apellidos,
+        rol: usuario.rol,
+      },
+    };
+  }
+
+  async updateProfile(userId: string, dto: UpdateProfileDto) {
+    const usuario = await this.usuariosRepository.findOne({ where: { id_usuario: userId } });
+    if (!usuario) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    // Si se intenta cambiar email, verificar unicidad
+    if (dto.email && dto.email !== usuario.email) {
+      const exists = await this.usuariosRepository.findOne({ where: { email: dto.email } });
+      if (exists) {
+        throw new ConflictException('El email ya está registrado');
+      }
+      usuario.email = dto.email;
+    }
+
+    if (dto.nombres) usuario.nombres = dto.nombres;
+    if (dto.apellidos) usuario.apellidos = dto.apellidos;
+
+    await this.usuariosRepository.save(usuario);
+
+    return {
       user: {
         id: usuario.id_usuario,
         email: usuario.email,

@@ -127,6 +127,19 @@ const AccessibilityMenu: React.FC = () => {
   return (
     <>
       {/* Botón flotante de accesibilidad */}
+      {/*
+        Accessibility FAB (Floating Action Button)
+        - La clase `accessibility-fab` controla la posición (offsets) mediante variables CSS definidas en `src/styles/accessibility.css`.
+        - Variables disponibles (por defecto en `.accessibility-fab`):
+          --fab-bottom-mobile: espacio desde el bottom en móviles (ej. 1.25rem)
+          --fab-right-mobile: espacio desde la derecha en móviles
+          --fab-top-md: posición top en pantallas md+ (usado para centrar verticalmente, valor por defecto 50%)
+          --fab-right-md: espacio desde la derecha en pantallas md+
+          --fab-right-xl: espacio desde la derecha en pantallas xl+
+        - Comportamiento: móvil => esquina inferior derecha; md+ => centrado vertical a la derecha.
+        - Ocultación: cuando el panel de accesibilidad está abierto (`isOpen`), el botón aplica `md:hidden` para evitar solapamiento en pantallas md+.
+        - Para ajustar offsets, modifica las variables en `.accessibility-fab` o añade una regla específica en `accessibility.css` o en tu hoja de estilos de la página.
+      */}
       <button
         onClick={toggleMenu}
         onKeyDown={handleKeyDown}
@@ -137,9 +150,10 @@ const AccessibilityMenu: React.FC = () => {
             : t('accessibility.openMenu')
         }
         title={t('accessibility.title')}
-        className={`fixed bottom-5 right-5 z-50 text-white p-1 w-10 h-10 flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors duration-150 relative ${
+        /* Posición controlada por la clase accessibility-fab (variables CSS para ajustar offsets). */
+        className={`accessibility-fab fixed z-50 text-white p-1 w-10 h-10 flex items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-blue-300 transition-colors duration-150 transform ${
           isVoiceControlActive ? 'bg-blue-700' : 'bg-blue-600'
-        }`}
+        } ${isOpen ? 'md:hidden' : ''}`}
       >
         {/* Ícono de discapacidad (más discreto) */}
         <span className="sr-only">{t('accessibility.title')}</span>

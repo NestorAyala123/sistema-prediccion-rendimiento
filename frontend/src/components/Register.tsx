@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { authService } from '../services/api';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
@@ -50,40 +51,28 @@ const Register: React.FC = () => {
     }
 
     try {
-      // Llamada al backend para registrar usuario
-      const response = await fetch('http://localhost:3001/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombres: formData.nombres,
-          apellidos: formData.apellidos,
-          email: formData.email,
-          password: formData.password,
-        }),
+      // Usar el servicio de API centralizado (apunta a REACT_APP_API_URL o http://localhost:4000)
+      const data = await authService.register({
+        nombres: formData.nombres,
+        apellidos: formData.apellidos,
+        email: formData.email,
+        password: formData.password,
       });
 
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        setError(data.message || 'Error al registrar usuario');
-        setLoading(false);
-        return;
+      // Guardar token y usuario en localStorage
+      if (data?.access_token) {
+        localStorage.setItem('token', data.access_token);
+      }
+      if (data?.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
       }
 
-      // Registro exitoso, ir a login
       navigate('/login');
     } catch (err: any) {
-      // En modo demo, permitir registro sin backend
-      console.warn('Backend de registro no disponible (404), usando demo mode');
-      localStorage.setItem(
-        'user',
-        JSON.stringify({
-          nombres: formData.nombres,
-          apellidos: formData.apellidos,
-          email: formData.email,
-          role: 'usuario',
-        })
-      );
-      navigate('/login');
+      const msg = err?.response?.data?.message || err.message || 'Error al registrar usuario';
+      setError(msg);
+      setLoading(false);
+      return;
     } finally {
       setLoading(false);
     }

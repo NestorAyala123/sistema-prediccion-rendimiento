@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { Bars3Icon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import ProfileModal from './ProfileModal';
 
 type NavbarProps = {
   onToggleSidebar?: () => void;
@@ -11,6 +12,24 @@ type NavbarProps = {
 const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const [showProfile, setShowProfile] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+
+  // Close menu when clicking outside
+  React.useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target) return;
+      // if click happens outside dropdown/button, close
+      const menuEl = document.getElementById('user-menu');
+      const btnEl = document.getElementById('user-menu-button');
+      if (menuEl && btnEl && !menuEl.contains(target) && !btnEl.contains(target)) {
+        setShowMenu(false);
+      }
+    };
+    if (showMenu) document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, [showMenu]);
   const { lang, setLang, t } = useLanguage();
 
   const handleLogout = () => {
@@ -81,10 +100,36 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
               </>
             </div>
 
-            <div className="hidden md:flex items-center space-x-2">
-              <div className="text-sm text-gray-700 px-2">
-                {user?.nombres} {user?.apellidos}
-              </div>
+            <div className="hidden md:flex items-center space-x-2 relative">
+              <button
+                id="user-menu-button"
+                onClick={() => setShowMenu((v) => !v)}
+                className="text-sm text-gray-700 px-2 hover:bg-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center gap-2"
+                aria-haspopup="true"
+                aria-expanded={showMenu}
+              >
+                <span>{user?.nombres} {user?.apellidos}</span>
+                <svg className="w-4 h-4 text-gray-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden>
+                  <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.293l3.71-4.06a.75.75 0 111.12 1l-4.25 4.657a.75.75 0 01-1.07 0L5.25 8.27a.75.75 0 01-.02-1.06z" clipRule="evenodd" />
+                </svg>
+              </button>
+
+              {showMenu && (
+                <div id="user-menu" className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg py-1 z-50">
+                  <button
+                    onClick={() => { setShowProfile(true); setShowMenu(false); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Editar perfil
+                  </button>
+                  <button
+                    onClick={() => { handleLogout(); setShowMenu(false); }}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    Salir
+                  </button>
+                </div>
+              )}
 
               {/* Ayuda eliminado para simplificar la interfaz */}
 
@@ -112,6 +157,8 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
 
             {/* Mensaje de sesión ocultado para mantener la barra limpia */}
           </div>
+          {/* Profile modal */}
+          <ProfileModal isOpen={showProfile} onClose={() => setShowProfile(false)} />
         </div>
       </div>
     </header>

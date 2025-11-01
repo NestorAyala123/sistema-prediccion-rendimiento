@@ -528,3 +528,40 @@ body.high-contrast button:hover {
   white-space: nowrap;
   border: 0;
 }
+
+/* Floating accessibility button (FAB) offsets controlables */
+.accessibility-fab {
+  /* Variables que permiten ajustar offsets desde CSS o inline si es necesario */
+  --fab-bottom-mobile: 1.25rem; /* bottom-5 */
+  --fab-right-mobile: 1.25rem; /* right-5 */
+  --fab-right-md: 1.25rem; /* right offset on md+ */
+  --fab-top-md: 50%; /* center vertically */
+  --fab-right-xl: 2rem; /* more separation on extra large screens */
+
+  /* Forzar a la derecha y evitar interferencias de otras reglas */
+  left: auto !important;
+  bottom: var(--fab-bottom-mobile) !important;
+  right: var(--fab-right-mobile) !important;
+}
+
+@media (min-width: 768px) {
+  .accessibility-fab {
+    /* On md and up, use top + right and translate to center vertically */
+    left: auto !important;
+    top: var(--fab-top-md) !important;
+    right: var(--fab-right-md) !important;
+    bottom: auto !important;
+    transform: translateY(-50%) !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .accessibility-fab {
+    /* En pantallas xl usar un offset mayor a la derecha */
+    right: var(--fab-right-xl) !important;
+    inset-inline-end: var(--fab-right-xl) !important; /* logical property */
+    top: var(--fab-top-md) !important;
+    inset-inline-start: auto !important;
+  }
+}
+

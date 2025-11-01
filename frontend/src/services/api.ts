@@ -75,6 +75,11 @@ export const authService = {
     return response.data;
   },
 
+  async updateProfile(data: Partial<RegisterRequest>): Promise<{ user: any }> {
+    const response = await api.patch('/auth/profile', data);
+    return response.data;
+  },
+
   async logout(): Promise<void> {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
