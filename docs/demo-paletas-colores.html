@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paletas de Colores Personalizados - Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #333;
+        }
+
+        .palette-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+
+        .palette-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .palette-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .palette-header {
+            padding: 20px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .palette-colors {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: #ddd;
+        }
+
+        .color-swatch {
+            aspect-ratio: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            position: relative;
+        }
+
+        .color-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            opacity: 0.9;
+        }
+
+        .color-value {
+            font-size: 10px;
+            font-family: monospace;
+            opacity: 0.8;
+            margin-top: 2px;
+        }
+
+        .palette-demo {
+            padding: 20px;
+        }
+
+        .demo-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .demo-button:hover {
+            transform: scale(1.05);
+        }
+
+        .demo-text {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Paletas de Colores Personalizados</h1>
+        
+        <div class="palette-grid">
+            <!-- Default Palette -->
+            <div class="palette-card">
+                <div class="palette-header" style="background: #3b82f6;">
+                    Default
+                </div>
+                <div class="palette-colors">
+                    <div class="color-swatch" style="background: #ffffff; color: #000;">
+                        <span class="color-label">Fondo</span>
+                        <span class="color-value">#ffffff</span>
+                    </div>
+                    <div class="color-swatch" style="background: #000000; color: #fff;">
+                        <span class="color-label">Texto</span>
+                        <span class="color-value">#000000</span>
+                    </div>
+                    <div class="color-swatch" style="background: #3b82f6; color: #fff;">
+                        <span class="color-label">Primario</span>
+                        <span class="color-value">#3b82f6</span>
+                    </div>
+                    <div class="color-swatch" style="background: #64748b; color: #fff;">
+                        <span class="color-label">Secundario</span>
+                        <span class="color-value">#64748b</span>
+                    </div>
+                    <div class="color-swatch" style="background: #8b5cf6; color: #fff;">
+                        <span class="color-label">Acento</span>
+                        <span class="color-value">#8b5cf6</span>
+                    </div>
+                    <div class="color-swatch" style="background: #e5e7eb; color: #000;">
+                        <span class="color-label">Bordes</span>
+                        <span class="color-value">#e5e7eb</span>
+                    </div>
+                </div>
+                <div class="palette-demo" style="background: #ffffff; color: #000000;">
+                    <button class="demo-button" style="background: #3b82f6; color: white;">Primario</button>
+                    <button class="demo-button" style="background: #8b5cf6; color: white;">Acento</button>
+                    <div class="demo-text" style="border: 1px solid #e5e7eb;">
+                        Texto de ejemplo en esta paleta
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dark Palette -->
+            <div class="palette-card">
+                <div class="palette-header" style="background: #60a5fa;">
+                    Oscuro
+                </div>
+                <div class="palette-colors">
+                    <div class="color-swatch" style="background: #1a1a1a; color: #fff;">
+                        <span class="color-label">Fondo</span>
+                        <span class="color-value">#1a1a1a</span>
+                    </div>
+                    <div class="color-swatch" style="background: #ffffff; color: #000;">
+                        <span class="color-label">Texto</span>
+                        <span class="color-value">#ffffff</span>
+                    </div>
+                    <div class="color-swatch" style="background: #60a5fa; color: #000;">
+                        <span class="color-label">Primario</span>
+                        <span class="color-value">#60a5fa</span>
+                    </div>
+                    <div class="color-swatch" style="background: #94a3b8; color: #000;">
+                        <span class="color-label">Secundario</span>
+                        <span class="color-value">#94a3b8</span>
+                    </div>
+                    <div class="color-swatch" style="background: #a78bfa; color: #000;">
+                        <span class="color-label">Acento</span>
+                        <span class="color-value">#a78bfa</span>
+                    </div>
+                    <div class="color-swatch" style="background: #374151; color: #fff;">
+                        <span class="color-label">Bordes</span>
+                        <span class="color-value">#374151</span>
+                    </div>
+                </div>
+                <div class="palette-demo" style="background: #1a1a1a; color: #ffffff;">
+                    <button class="demo-button" style="background: #60a5fa; color: #000;">Primario</button>
+                    <button class="demo-button" style="background: #a78bfa; color: #000;">Acento</button>
+                    <div class="demo-text" style="border: 1px solid #374151;">
+                        Texto de ejemplo en esta paleta
+                    </div>
+                </div>
+            </div>
+
+            <!-- Warm Palette -->
+            <div class="palette-card">
+                <div class="palette-header" style="background: #d97706;">
+                    Cálido
+                </div>
+                <div class="palette-colors">
+                    <div class="color-swatch" style="background: #fffef2; color: #000;">
+                        <span class="color-label">Fondo</span>
+                        <span class="color-value">#fffef2</span>
+                    </div>
+                    <div class="color-swatch" style="background: #2d2d2d; color: #fff;">
+                        <span class="color-label">Texto</span>
+                        <span class="color-value">#2d2d2d</span>
+                    </div>
+                    <div class="color-swatch" style="background: #d97706; color: #fff;">
+                        <span class="color-label">Primario</span>
+                        <span class="color-value">#d97706</span>
+                    </div>
+                    <div class="color-swatch" style="background: #78716c; color: #fff;">
+                        <span class="color-label">Secundario</span>
+                        <span class="color-value">#78716c</span>
+                    </div>
+                    <div class="color-swatch" style="background: #ea580c; color: #fff;">
+                        <span class="color-label">Acento</span>
+                        <span class="color-value">#ea580c</span>
+                    </div>
+                    <div class="color-swatch" style="background: #e7e5e4; color: #000;">
+                        <span class="color-label">Bordes</span>
+                        <span class="color-value">#e7e5e4</span>
+                    </div>
+                </div>
+                <div class="palette-demo" style="background: #fffef2; color: #2d2d2d;">
+                    <button class="demo-button" style="background: #d97706; color: white;">Primario</button>
+                    <button class="demo-button" style="background: #ea580c; color: white;">Acento</button>
+                    <div class="demo-text" style="border: 1px solid #e7e5e4;">
+                        Texto de ejemplo en esta paleta
+                    </div>
+                </div>
+            </div>
+
+            <!-- Nature Palette -->
+            <div class="palette-card">
+                <div class="palette-header" style="background: #16a34a;">
+                    Natura
+                </div>
+                <div class="palette-colors">
+                    <div class="color-swatch" style="background: #f0fdf4; color: #000;">
+                        <span class="color-label">Fondo</span>
+                        <span class="color-value">#f0fdf4</span>
+                    </div>
+                    <div class="color-swatch" style="background: #14532d; color: #fff;">
+                        <span class="color-label">Texto</span>
+                        <span class="color-value">#14532d</span>
+                    </div>
+                    <div class="color-swatch" style="background: #16a34a; color: #fff;">
+                        <span class="color-label">Primario</span>
+                        <span class="color-value">#16a34a</span>
+                    </div>
+                    <div class="color-swatch" style="background: #6b7280; color: #fff;">
+                        <span class="color-label">Secundario</span>
+                        <span class="color-value">#6b7280</span>
+                    </div>
+                    <div class="color-swatch" style="background: #059669; color: #fff;">
+                        <span class="color-label">Acento</span>
+                        <span class="color-value">#059669</span>
+                    </div>
+                    <div class="color-swatch" style="background: #d1fae5; color: #000;">
+                        <span class="color-label">Bordes</span>
+                        <span class="color-value">#d1fae5</span>
+                    </div>
+                </div>
+                <div class="palette-demo" style="background: #f0fdf4; color: #14532d;">
+                    <button class="demo-button" style="background: #16a34a; color: white;">Primario</button>
+                    <button class="demo-button" style="background: #059669; color: white;">Acento</button>
+                    <div class="demo-text" style="border: 1px solid #d1fae5;">
+                        Texto de ejemplo en esta paleta
+                    </div>
+                </div>
+            </div>
+
+            <!-- High Contrast Palette -->
+            <div class="palette-card">
+                <div class="palette-header" style="background: #ffff00; color: #000;">
+                    Alto Contraste
+                </div>
+                <div class="palette-colors">
+                    <div class="color-swatch" style="background: #000000; color: #fff;">
+                        <span class="color-label">Fondo</span>
+                        <span class="color-value">#000000</span>
+                    </div>
+                    <div class="color-swatch" style="background: #ffff00; color: #000;">
+                        <span class="color-label">Texto</span>
+                        <span class="color-value">#ffff00</span>
+                    </div>
+                    <div class="color-swatch" style="background: #ffff00; color: #000;">
+                        <span class="color-label">Primario</span>
+                        <span class="color-value">#ffff00</span>
+                    </div>
+                    <div class="color-swatch" style="background: #ffffff; color: #000;">
+                        <span class="color-label">Secundario</span>
+                        <span class="color-value">#ffffff</span>
+                    </div>
+                    <div class="color-swatch" style="background: #00ffff; color: #000;">
+                        <span class="color-label">Acento</span>
+                        <span class="color-value">#00ffff</span>
+                    </div>
+                    <div class="color-swatch" style="background: #ffff00; color: #000;">
+                        <span class="color-label">Bordes</span>
+                        <span class="color-value">#ffff00</span>
+                    </div>
+                </div>
+                <div class="palette-demo" style="background: #000000; color: #ffff00;">
+                    <button class="demo-button" style="background: #ffff00; color: #000;">Primario</button>
+                    <button class="demo-button" style="background: #00ffff; color: #000;">Acento</button>
+                    <div class="demo-text" style="border: 1px solid #ffff00;">
+                        Texto de ejemplo en esta paleta
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pink Palette -->
+            <div class="palette-card">
+                <div class="palette-header" style="background: #db2777;">
+                    Rosa
+                </div>
+                <div class="palette-colors">
+                    <div class="color-swatch" style="background: #fdf2f8; color: #000;">
+                        <span class="color-label">Fondo</span>
+                        <span class="color-value">#fdf2f8</span>
+                    </div>
+                    <div class="color-swatch" style="background: #831843; color: #fff;">
+                        <span class="color-label">Texto</span>
+                        <span class="color-value">#831843</span>
+                    </div>
+                    <div class="color-swatch" style="background: #db2777; color: #fff;">
+                        <span class="color-label">Primario</span>
+                        <span class="color-value">#db2777</span>
+                    </div>
+                    <div class="color-swatch" style="background: #9333ea; color: #fff;">
+                        <span class="color-label">Secundario</span>
+                        <span class="color-value">#9333ea</span>
+                    </div>
+                    <div class="color-swatch" style="background: #c026d3; color: #fff;">
+                        <span class="color-label">Acento</span>
+                        <span class="color-value">#c026d3</span>
+                    </div>
+                    <div class="color-swatch" style="background: #f9a8d4; color: #000;">
+                        <span class="color-label">Bordes</span>
+                        <span class="color-value">#f9a8d4</span>
+                    </div>
+                </div>
+                <div class="palette-demo" style="background: #fdf2f8; color: #831843;">
+                    <button class="demo-button" style="background: #db2777; color: white;">Primario</button>
+                    <button class="demo-button" style="background: #c026d3; color: white;">Acento</button>
+                    <div class="demo-text" style="border: 1px solid #f9a8d4;">
+                        Texto de ejemplo en esta paleta
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 40px; padding: 20px; color: #666;">
+        <p><strong>Sistema de Predicción Académica</strong> - Paletas de Colores Personalizados v1.0</p>
+        <p style="margin-top: 10px; font-size: 14px;">
+            Estas paletas están diseñadas para mejorar la accesibilidad y la experiencia de usuario.<br>
+            Cada paleta puede ser personalizada completamente desde el menú de accesibilidad.
+        </p>
+    </div>
+</body>
+</html>

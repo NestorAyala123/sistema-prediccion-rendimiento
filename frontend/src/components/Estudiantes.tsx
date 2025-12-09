@@ -1,6 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { estudiantesService, CreateEstudianteDto } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useSearch } from '../contexts/SearchContext';
+import { 
+  UserPlusIcon,
+  MagnifyingGlassIcon,
+  Bars3Icon,
+  XMarkIcon,
+  DocumentTextIcon,
+  AcademicCapIcon,
+  UserGroupIcon
+} from '@heroicons/react/24/outline';
 
 interface Estudiante {
   id_estudiante: string;
@@ -14,7 +25,8 @@ interface Estudiante {
 const Estudiantes: React.FC = () => {
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const { searchTerm: globalSearchTerm } = useSearch();
+  const [localSearchTerm, setLocalSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState<CreateEstudianteDto>({
     id_estudiante: '',
@@ -25,13 +37,47 @@ const Estudiantes: React.FC = () => {
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const { t } = useLanguage();
+  const [sidebarExpanded, setSidebarExpanded] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const { t, lang } = useLanguage();
+  const { user } = useAuth();
 
+  // Sincronizar búsqueda global con búsqueda local
   useEffect(() => {
-    loadEstudiantes();
-  }, []);
+    if (globalSearchTerm) {
+      setLocalSearchTerm(globalSearchTerm);
+    }
+  }, [globalSearchTerm]);
 
-  const loadEstudiantes = async () => {
+  // Función para obtener saludo personalizado
+  const getPersonalizedGreeting = () => {
+    const now = new Date();
+    const hour = now.getHours();
+    const userName = user?.nombres || user?.email?.split('@')[0] || 'Usuario';
+    
+    let timeGreeting = '';
+    let icon = '';
+    
+    if (hour >= 6 && hour < 12) {
+      timeGreeting = 'Buenos días';
+      icon = '🌅';
+    } else if (hour >= 12 && hour < 18) {
+      timeGreeting = 'Buenas tardes';
+      icon = '☀️';
+    } else {
+      timeGreeting = 'Buenas noches';
+      icon = '🌙';
+    }
+    
+    return {
+      greeting: `${timeGreeting}, ${userName}`,
+      icon,
+      userName
+    };
+  };
+
+  const loadEstudiantes = useCallback(async () => {
     try {
       setLoading(true);
       const data = await estudiantesService.getAll();
@@ -42,7 +88,43 @@ const Estudiantes: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
+
+  useEffect(() => {
+    loadEstudiantes();
+  }, [loadEstudiantes]);
+
+  // Atajos de teclado
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ctrl+N: Nuevo estudiante
+      if (e.ctrlKey && e.key === 'n') {
+        e.preventDefault();
+        handleAgregarEstudiante();
+      }
+      // Ctrl+F: Enfocar búsqueda
+      if (e.ctrlKey && e.key === 'f') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+      // Ctrl+B: Toggle sidebar
+      if (e.ctrlKey && e.key === 'b') {
+        e.preventDefault();
+        setSidebarExpanded(prev => !prev);
+      }
+      // Escape: Cerrar modal o sidebar móvil
+      if (e.key === 'Escape') {
+        if (showModal) {
+          handleCloseModal();
+        } else if (showSidebar) {
+          setShowSidebar(false);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showModal, showSidebar]);
 
   const handleAgregarEstudiante = () => {
     setFormData({
@@ -144,9 +226,9 @@ const Estudiantes: React.FC = () => {
     (estudiante) =>
       `${estudiante.nombres} ${estudiante.apellidos}`
         .toLowerCase()
-        .includes(searchTerm.toLowerCase()) ||
-      estudiante.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      estudiante.id_estudiante.includes(searchTerm)
+        .includes(localSearchTerm.toLowerCase()) ||
+      estudiante.email.toLowerCase().includes(localSearchTerm.toLowerCase()) ||
+      estudiante.id_estudiante.includes(localSearchTerm)
   );
 
   const getRiskColor = (nivel: string) => {
@@ -162,6 +244,45 @@ const Estudiantes: React.FC = () => {
     }
   };
 
+  // Elementos del menú lateral
+  const sidebarItems = [
+    {
+      icon: UserPlusIcon,
+      label: t('estudiantes.agregar'),
+      action: handleAgregarEstudiante,
+      shortcut: 'Ctrl+N',
+      color: 'text-blue-600 hover:text-blue-700'
+    },
+    {
+      icon: MagnifyingGlassIcon,
+      label: t('estudiantes.buscar'),
+      action: () => searchInputRef.current?.focus(),
+      shortcut: 'Ctrl+F',
+      color: 'text-gray-600 hover:text-gray-700'
+    },
+    {
+      icon: DocumentTextIcon,
+      label: 'Exportar Lista',
+      action: () => alert('Función de exportar en desarrollo'),
+      shortcut: 'Ctrl+E',
+      color: 'text-green-600 hover:text-green-700'
+    },
+    {
+      icon: AcademicCapIcon,
+      label: 'Estadísticas',
+      action: () => alert('Función de estadísticas en desarrollo'),
+      shortcut: 'Ctrl+S',
+      color: 'text-purple-600 hover:text-purple-700'
+    },
+    {
+      icon: UserGroupIcon,
+      label: 'Gestión Masiva',
+      action: () => alert('Función de gestión masiva en desarrollo'),
+      shortcut: 'Ctrl+M',
+      color: 'text-orange-600 hover:text-orange-700'
+    }
+  ];
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -171,34 +292,263 @@ const Estudiantes: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">{t('estudiantes.title')}</h1>
-        <p className="text-gray-600">{t('estudiantes.subtitle')}</p>
-      </div>
+    <div className="flex h-screen bg-gray-50">
+      {/* Overlay para móvil cuando el sidebar está abierto */}
+      {showSidebar && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 md:hidden"
+          onClick={() => setShowSidebar(false)}
+          aria-hidden="true"
+        />
+      )}
 
-      <div className="bg-white p-6 rounded-lg shadow-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">{t('estudiantes.listaTitulo')}</h2>
-          <button
-            onClick={handleAgregarEstudiante}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            {t('estudiantes.agregar')}
-          </button>
+      {/* Menú lateral expandible */}
+      <aside
+        className={`bg-white border-r border-gray-200 flex-shrink-0 z-40 transition-all duration-300 ease-in-out ${
+          showSidebar ? 'fixed left-0 top-0 h-full transform translate-x-0' : 'hidden md:block'
+        } ${sidebarExpanded ? 'w-64' : 'w-16'}`}
+        aria-label="Menú de acciones rápidas"
+      >
+        <div className="h-full flex flex-col">
+          {/* Header del sidebar */}
+          <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
+            <div className="flex items-center gap-3">
+              <UserGroupIcon className="w-8 h-8 text-blue-600" />
+              {sidebarExpanded && (
+                <div>
+                  <h2 className="text-lg font-semibold text-gray-800">Estudiantes</h2>
+                  <p className="text-sm text-gray-500">Acciones rápidas</p>
+                </div>
+              )}
+            </div>
+            
+            <button
+              onClick={() => setSidebarExpanded(!sidebarExpanded)}
+              className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              aria-label={sidebarExpanded ? "Contraer menú" : "Expandir menú"}
+            >
+              {sidebarExpanded ? (
+                <XMarkIcon className="w-5 h-5 text-gray-500" />
+              ) : (
+                <Bars3Icon className="w-5 h-5 text-gray-500" />
+              )}
+            </button>
+          </div>
+
+          {/* Items del menú */}
+          <nav className="flex-1 px-2 py-4 space-y-1">
+            {sidebarItems.map((item, index) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={index}
+                  onClick={item.action}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-lg transition-all duration-200 ${item.color} hover:bg-gray-50 group`}
+                  title={!sidebarExpanded ? `${item.label} (${item.shortcut})` : item.shortcut}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {sidebarExpanded && (
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-medium">{item.label}</div>
+                      <div className="text-xs opacity-70">{item.shortcut}</div>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Footer del sidebar */}
+          {sidebarExpanded && (
+            <div className="px-4 py-4 border-t border-gray-200">
+              <div className="text-xs text-gray-500">
+                <p className="mb-1">Atajos disponibles:</p>
+                <p>• Ctrl+N: Nuevo estudiante</p>
+                <p>• Ctrl+F: Buscar</p>
+                <p>• Ctrl+B: Toggle menú</p>
+                <p>• Esc: Cerrar modal</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* Contenido principal */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header del contenido principal - Mobile */}
+        <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setShowSidebar(true)}
+              className="p-2 rounded-lg hover:bg-gray-100"
+              aria-label="Abrir menú"
+            >
+              <Bars3Icon className="w-6 h-6 text-gray-600" />
+            </button>
+            <div className="text-center">
+              <h1 className="text-lg font-semibold text-gray-900">
+                {getPersonalizedGreeting().icon} {t('estudiantes.title')}
+              </h1>
+              <p className="text-xs text-gray-500">{getPersonalizedGreeting().userName}</p>
+            </div>
+            <div className="w-10"></div> {/* Espaciador */}
+          </div>
         </div>
 
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder={t('estudiantes.buscarPlaceholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          />
-        </div>
+        {/* Contenido scrolleable */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="space-y-6 max-w-7xl mx-auto">
+            {/* Indicador de idioma activo - Solo para desarrollo */}
+            <div className="hidden lg:block mb-2">
+              <div className="flex justify-end">
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                  {t('navbar.language')}: {lang.toUpperCase()}
+                </span>
+              </div>
+            </div>
 
-        <div className="overflow-x-auto">
+            {/* Bienvenida personalizada */}
+            <div className="hidden md:block">
+              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-2xl">{getPersonalizedGreeting().icon}</span>
+                      <h1 className="text-2xl font-bold text-gray-800">
+                        {getPersonalizedGreeting().greeting}
+                      </h1>
+                    </div>
+                    <p className="text-gray-600 text-lg">
+                      {t('estudiantes.subtitle')}
+                    </p>
+                    <div className="flex items-center gap-4 mt-3 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                        <span>{estudiantes.length} {t('estudiantes.registrados')}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                        <span>{t('dashboard.sistemaActivo')}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="hidden lg:block">
+                    <div className="text-right text-sm text-gray-500">
+                      <p>{new Date().toLocaleDateString('es-ES', { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                      })}</p>
+                      <p className="mt-1">{new Date().toLocaleTimeString('es-ES', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tarjetas de estadísticas rápidas */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center">
+                  <UserGroupIcon className="w-8 h-8 text-blue-500" />
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">{t('dashboard.totalEstudiantes')}</p>
+                    <p className="text-2xl font-bold text-gray-900">{estudiantes.length}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <span className="text-green-600 font-bold">✓</span>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">{t('estudiantes.activos')}</p>
+                    <p className="text-2xl font-bold text-green-600">{estudiantes.length}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <span className="text-yellow-600 font-bold">⚠</span>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">{t('estudiantes.enRiesgo')}</p>
+                    <p className="text-2xl font-bold text-yellow-600">
+                      {estudiantes.filter(e => e.nivel_riesgo === 'Alto' || e.nivel_riesgo === 'Medio').length}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center">
+                  <AcademicCapIcon className="w-8 h-8 text-purple-500" />
+                  <div className="ml-3">
+                    <p className="text-sm font-medium text-gray-600">{t('estudiantes.semestrePromedio')}</p>
+                    <p className="text-2xl font-bold text-purple-600">
+                      {estudiantes.length > 0 
+                        ? Math.round(estudiantes.reduce((acc, e) => acc + (e.semestre_actual || 0), 0) / estudiantes.length) 
+                        : 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-900">{t('estudiantes.listaTitulo')}</h2>
+                <button
+                  onClick={handleAgregarEstudiante}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                  <UserPlusIcon className="w-4 h-4" />
+                  {t('estudiantes.agregar')}
+                </button>
+              </div>
+
+              {/* Barra de búsqueda mejorada */}
+              <div className="mb-6">
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder={t('estudiantes.buscarPlaceholder')}
+                    value={localSearchTerm}
+                    onChange={(e) => setLocalSearchTerm(e.target.value)}
+                    className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors"
+                  />
+                  {localSearchTerm && (
+                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                      <button
+                        onClick={() => setLocalSearchTerm('')}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                        aria-label={t('estudiantes.limpiarBusqueda')}
+                      >
+                        <XMarkIcon className="h-5 w-5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {localSearchTerm && (
+                  <p className="mt-2 text-sm text-gray-600">
+                    {t('estudiantes.resultadosBusqueda').replace('{count}', filteredEstudiantes.length.toString()).replace('{term}', localSearchTerm)}
+                  </p>
+                )}
+              </div>
+
+              <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
@@ -220,7 +570,42 @@ const Estudiantes: React.FC = () => {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {filteredEstudiantes.map((estudiante) => (
+              {filteredEstudiantes.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <div className="flex flex-col items-center">
+                      <UserGroupIcon className="w-16 h-16 text-gray-300 mb-4" />
+                      {estudiantes.length === 0 ? (
+                        <div>
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            {t('estudiantes.bienvenidaVacio')} {getPersonalizedGreeting().userName}!
+                          </h3>
+                          <p className="text-gray-500 mb-4">
+                            {t('estudiantes.noEstudiantesRegistrados')}
+                          </p>
+                          <button
+                            onClick={handleAgregarEstudiante}
+                            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors gap-2"
+                          >
+                            <UserPlusIcon className="w-4 h-4" />
+                            {t('estudiantes.agregarPrimero')}
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            {t('estudiantes.noResultados')}
+                          </h3>
+                          <p className="text-gray-500">
+                            {t('estudiantes.noCoincidencias').replace('{term}', localSearchTerm)}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredEstudiantes.map((estudiante) => (
                 <tr key={estudiante.id_estudiante} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
@@ -266,7 +651,7 @@ const Estudiantes: React.FC = () => {
                     </button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>
@@ -277,7 +662,15 @@ const Estudiantes: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">{t('estudiantes.modalTitle')}</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">{t('estudiantes.modalTitle')}</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  {estudiantes.length === 0 
+                    ? t('estudiantes.modalPrimerEstudiante').replace('{userName}', getPersonalizedGreeting().userName)
+                    : t('estudiantes.modalAgregarEstudiante').replace('{number}', (estudiantes.length + 1).toString())
+                  }
+                </p>
+              </div>
               <button
                 type="button"
                 title="Cerrar modal"
@@ -417,6 +810,9 @@ const Estudiantes: React.FC = () => {
           </div>
         </div>
       )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

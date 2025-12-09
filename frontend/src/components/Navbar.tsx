@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Bars3Icon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import { useSearch } from '../contexts/SearchContext';
+import { Bars3Icon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import ProfileModal from './ProfileModal';
 
 type NavbarProps = {
@@ -14,6 +15,8 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
   const { user, logout } = useAuth();
   const [showProfile, setShowProfile] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const { setSearchTerm, performSearch, clearSearch } = useSearch();
+  const [localSearch, setLocalSearch] = useState('');
 
   // Close menu when clicking outside
   React.useEffect(() => {
@@ -30,11 +33,28 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
     if (showMenu) document.addEventListener('click', handler);
     return () => document.removeEventListener('click', handler);
   }, [showMenu]);
+  
   const { lang, setLang, t } = useLanguage();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    performSearch(localSearch);
+  };
+
+  const handleClearSearch = () => {
+    setLocalSearch('');
+    clearSearch();
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalSearch(value);
+    setSearchTerm(value);
   };
 
   // Nota: ayuda y mensaje de sesión removidos para una interfaz más limpia
@@ -67,20 +87,34 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
           </div>
 
           <div className="flex-1 px-4">
-            <label htmlFor="site-search" className="sr-only">
-              {t('navbar.search.placeholder')}
-            </label>
-            <div className="relative w-full max-w-lg">
-              <input
-                id="site-search"
-                name="q"
-                type="search"
-                placeholder={t('navbar.search.placeholder')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="Buscar"
-              />
-              <MagnifyingGlassIcon className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 transform -translate-y-1/2" />
-            </div>
+            <form onSubmit={handleSearchSubmit} className="w-full max-w-lg">
+              <label htmlFor="site-search" className="sr-only">
+                {t('navbar.search.placeholder')}
+              </label>
+              <div className="relative w-full">
+                <MagnifyingGlassIcon className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none" />
+                <input
+                  id="site-search"
+                  name="q"
+                  type="search"
+                  value={localSearch}
+                  onChange={handleSearchChange}
+                  placeholder={t('navbar.search.placeholder')}
+                  className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  aria-label="Buscar en el sistema"
+                />
+                {localSearch && (
+                  <button
+                    type="button"
+                    onClick={handleClearSearch}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    aria-label="Limpiar búsqueda"
+                  >
+                    <XMarkIcon className="w-5 h-5" />
+                  </button>
+                )}
+              </div>
+            </form>
           </div>
 
           <div className="flex items-center space-x-3">

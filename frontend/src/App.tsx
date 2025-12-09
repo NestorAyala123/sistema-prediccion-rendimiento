@@ -19,35 +19,38 @@ import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { SearchProvider } from './contexts/SearchContext';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <LanguageProvider>
-          <Routes>
-          {/* Rutas públicas */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <SearchProvider>
+            <Routes>
+            {/* Rutas públicas */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Rutas protegidas */}
-          <Route
-            path="/*"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/estudiantes" element={<Estudiantes />} />
-                    <Route path="/predicciones" element={<Predicciones />} />
-                    <Route path="/soporte" element={<Soporte />} />
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                  </Routes>
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          </Routes>
+            {/* Rutas protegidas */}
+            <Route
+              path="/*"
+              element={
+                <ProtectedRoute>
+                  <Layout>
+                    <Routes>
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/estudiantes" element={<Estudiantes />} />
+                      <Route path="/predicciones" element={<Predicciones />} />
+                      <Route path="/soporte" element={<Soporte />} />
+                      <Route path="*" element={<Navigate to="/" replace />} />
+                    </Routes>
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+            </Routes>
+          </SearchProvider>
         </LanguageProvider>
       </AuthProvider>
     </Router>

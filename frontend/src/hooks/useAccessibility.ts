@@ -12,6 +12,15 @@ const debounce = <T extends (...args: any[]) => any>(
   };
 };
 
+interface ColorScheme {
+  background: string;
+  text: string;
+  primary: string;
+  secondary: string;
+  accent: string;
+  border: string;
+}
+
 interface AccessibilitySettings {
   // Visual
   highContrast: boolean;
@@ -20,6 +29,7 @@ interface AccessibilitySettings {
   textSize: number;
   fontType: string;
   customColors: boolean;
+  colorScheme: ColorScheme;
   textToSpeech: boolean;
   linkHighlight: boolean;
   textSpacing: number;
@@ -66,6 +76,14 @@ const defaultSettings: AccessibilitySettings = {
   textSize: 1, // Valor normal (1-5, donde 3 era el medio)
   fontType: 'Arial',
   customColors: false,
+  colorScheme: {
+    background: '#ffffff',
+    text: '#000000',
+    primary: '#3b82f6',
+    secondary: '#64748b',
+    accent: '#8b5cf6',
+    border: '#e5e7eb',
+  },
   textToSpeech: false,
   linkHighlight: false,
   textSpacing: 1, // Valor normal (1-5, donde 3 era el medio)
@@ -256,9 +274,22 @@ export const useAccessibility = (): UseAccessibilityReturn => {
     }
 
     // Aplicar colores personalizados
-    if (settings.customColors) {
+    if (settings.customColors && settings.colorScheme) {
+      const scheme = settings.colorScheme;
+      root.style.setProperty('--custom-bg', scheme.background);
+      root.style.setProperty('--custom-text', scheme.text);
+      root.style.setProperty('--custom-primary', scheme.primary);
+      root.style.setProperty('--custom-secondary', scheme.secondary);
+      root.style.setProperty('--custom-accent', scheme.accent);
+      root.style.setProperty('--custom-border', scheme.border);
       root.classList.add('custom-colors');
     } else {
+      root.style.removeProperty('--custom-bg');
+      root.style.removeProperty('--custom-text');
+      root.style.removeProperty('--custom-primary');
+      root.style.removeProperty('--custom-secondary');
+      root.style.removeProperty('--custom-accent');
+      root.style.removeProperty('--custom-border');
       root.classList.remove('custom-colors');
     }
 

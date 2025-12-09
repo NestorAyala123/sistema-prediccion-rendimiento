@@ -15,3 +15,133 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Estilos de Accesibilidad - Colores Personalizados */
+.custom-colors {
+  background-color: var(--custom-bg, #ffffff) !important;
+  color: var(--custom-text, #000000) !important;
+}
+
+.custom-colors * {
+  border-color: var(--custom-border, #e5e7eb) !important;
+}
+
+.custom-colors button,
+.custom-colors .btn-primary,
+.custom-colors [role="button"] {
+  background-color: var(--custom-primary, #3b82f6) !important;
+  color: #ffffff !important;
+  border-color: var(--custom-primary, #3b82f6) !important;
+}
+
+.custom-colors button:hover,
+.custom-colors .btn-primary:hover {
+  background-color: var(--custom-accent, #8b5cf6) !important;
+  border-color: var(--custom-accent, #8b5cf6) !important;
+}
+
+.custom-colors .bg-white,
+.custom-colors .bg-gray-50,
+.custom-colors .bg-gray-100 {
+  background-color: var(--custom-bg, #ffffff) !important;
+}
+
+.custom-colors .text-gray-600,
+.custom-colors .text-gray-700,
+.custom-colors .text-gray-800,
+.custom-colors .text-gray-900,
+.custom-colors .text-black {
+  color: var(--custom-text, #000000) !important;
+}
+
+.custom-colors .text-blue-600,
+.custom-colors .text-blue-500 {
+  color: var(--custom-primary, #3b82f6) !important;
+}
+
+.custom-colors .text-purple-600,
+.custom-colors .text-purple-500 {
+  color: var(--custom-accent, #8b5cf6) !important;
+}
+
+.custom-colors .bg-blue-600,
+.custom-colors .bg-blue-500 {
+  background-color: var(--custom-primary, #3b82f6) !important;
+}
+
+.custom-colors .bg-purple-600,
+.custom-colors .bg-purple-500 {
+  background-color: var(--custom-accent, #8b5cf6) !important;
+}
+
+.custom-colors .border-gray-200,
+.custom-colors .border-gray-300 {
+  border-color: var(--custom-border, #e5e7eb) !important;
+}
+
+.custom-colors input,
+.custom-colors textarea,
+.custom-colors select {
+  background-color: var(--custom-bg, #ffffff) !important;
+  color: var(--custom-text, #000000) !important;
+  border-color: var(--custom-border, #e5e7eb) !important;
+}
+
+.custom-colors input:focus,
+.custom-colors textarea:focus,
+.custom-colors select:focus {
+  border-color: var(--custom-primary, #3b82f6) !important;
+  outline-color: var(--custom-primary, #3b82f6) !important;
+}
+
+.custom-colors .shadow,
+.custom-colors .shadow-lg,
+.custom-colors .shadow-xl {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Navegación y tarjetas con colores personalizados */
+.custom-colors nav,
+.custom-colors .card,
+.custom-colors .panel {
+  background-color: var(--custom-bg, #ffffff) !important;
+  border-color: var(--custom-border, #e5e7eb) !important;
+}
+
+.custom-colors a,
+.custom-colors .link {
+  color: var(--custom-primary, #3b82f6) !important;
+}
+
+.custom-colors a:hover,
+.custom-colors .link:hover {
+  color: var(--custom-accent, #8b5cf6) !important;
+}
+
+/* Badges y etiquetas */
+.custom-colors .badge,
+.custom-colors .tag,
+.custom-colors .label {
+  background-color: var(--custom-secondary, #64748b) !important;
+  color: #ffffff !important;
+}
+
+/* Tablas */
+.custom-colors table {
+  background-color: var(--custom-bg, #ffffff) !important;
+}
+
+.custom-colors th {
+  background-color: var(--custom-primary, #3b82f6) !important;
+  color: #ffffff !important;
+}
+
+.custom-colors td {
+  color: var(--custom-text, #000000) !important;
+  border-color: var(--custom-border, #e5e7eb) !important;
+}
+
+.custom-colors tr:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+

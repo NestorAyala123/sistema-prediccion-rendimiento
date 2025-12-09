@@ -338,6 +338,326 @@ const AccessibilityMenu: React.FC = () => {
                   className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
                 />
               </div>
+
+              {/* Panel de Colores Personalizados */}
+              {settings.customColors && (
+                <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                    {t('accessibility.colorCustomization')}
+                  </h4>
+
+                  {/* Paletas Predefinidas */}
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-2">
+                      {t('accessibility.colorPresets')}
+                    </label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => updateSetting('colorScheme', {
+                          background: '#ffffff',
+                          text: '#000000',
+                          primary: '#3b82f6',
+                          secondary: '#64748b',
+                          accent: '#8b5cf6',
+                          border: '#e5e7eb',
+                        })}
+                        className="p-2 border border-gray-300 rounded hover:bg-gray-100 text-xs"
+                        title="Default"
+                      >
+                        <div className="flex gap-1 mb-1">
+                          <div className="w-4 h-4 bg-white border border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 bg-blue-500 rounded"></div>
+                        </div>
+                        <span className="text-xs">Default</span>
+                      </button>
+
+                      <button
+                        onClick={() => updateSetting('colorScheme', {
+                          background: '#1a1a1a',
+                          text: '#ffffff',
+                          primary: '#60a5fa',
+                          secondary: '#94a3b8',
+                          accent: '#a78bfa',
+                          border: '#374151',
+                        })}
+                        className="p-2 border border-gray-300 rounded hover:bg-gray-100 text-xs"
+                        title="Dark Blue"
+                      >
+                        <div className="flex gap-1 mb-1">
+                          <div className="w-4 h-4 bg-gray-900 rounded"></div>
+                          <div className="w-4 h-4 bg-blue-400 rounded"></div>
+                        </div>
+                        <span className="text-xs">Oscuro</span>
+                      </button>
+
+                      <button
+                        onClick={() => updateSetting('colorScheme', {
+                          background: '#fffef2',
+                          text: '#2d2d2d',
+                          primary: '#d97706',
+                          secondary: '#78716c',
+                          accent: '#ea580c',
+                          border: '#e7e5e4',
+                        })}
+                        className="p-2 border border-gray-300 rounded hover:bg-gray-100 text-xs"
+                        title="Warm"
+                      >
+                        <div className="flex gap-1 mb-1">
+                          <div className="w-4 h-4 bg-amber-50 border border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 bg-orange-600 rounded"></div>
+                        </div>
+                        <span className="text-xs">Cálido</span>
+                      </button>
+
+                      <button
+                        onClick={() => updateSetting('colorScheme', {
+                          background: '#f0fdf4',
+                          text: '#14532d',
+                          primary: '#16a34a',
+                          secondary: '#6b7280',
+                          accent: '#059669',
+                          border: '#d1fae5',
+                        })}
+                        className="p-2 border border-gray-300 rounded hover:bg-gray-100 text-xs"
+                        title="Nature"
+                      >
+                        <div className="flex gap-1 mb-1">
+                          <div className="w-4 h-4 bg-green-50 border border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 bg-green-600 rounded"></div>
+                        </div>
+                        <span className="text-xs">Natura</span>
+                      </button>
+
+                      <button
+                        onClick={() => updateSetting('colorScheme', {
+                          background: '#000000',
+                          text: '#ffff00',
+                          primary: '#ffff00',
+                          secondary: '#ffffff',
+                          accent: '#00ffff',
+                          border: '#ffff00',
+                        })}
+                        className="p-2 border border-gray-300 rounded hover:bg-gray-100 text-xs"
+                        title="High Contrast Yellow"
+                      >
+                        <div className="flex gap-1 mb-1">
+                          <div className="w-4 h-4 bg-black rounded"></div>
+                          <div className="w-4 h-4 bg-yellow-400 rounded"></div>
+                        </div>
+                        <span className="text-xs">Alto C.</span>
+                      </button>
+
+                      <button
+                        onClick={() => updateSetting('colorScheme', {
+                          background: '#fdf2f8',
+                          text: '#831843',
+                          primary: '#db2777',
+                          secondary: '#9333ea',
+                          accent: '#c026d3',
+                          border: '#f9a8d4',
+                        })}
+                        className="p-2 border border-gray-300 rounded hover:bg-gray-100 text-xs"
+                        title="Pink Purple"
+                      >
+                        <div className="flex gap-1 mb-1">
+                          <div className="w-4 h-4 bg-pink-50 border border-gray-300 rounded"></div>
+                          <div className="w-4 h-4 bg-pink-600 rounded"></div>
+                        </div>
+                        <span className="text-xs">Rosa</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Selectores de Color Individuales */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        {t('accessibility.backgroundColor')}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={settings.colorScheme?.background || '#ffffff'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            background: e.target.value,
+                          })}
+                          className="w-10 h-10 rounded cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={settings.colorScheme?.background || '#ffffff'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            background: e.target.value,
+                          })}
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        {t('accessibility.textColor')}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={settings.colorScheme?.text || '#000000'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            text: e.target.value,
+                          })}
+                          className="w-10 h-10 rounded cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={settings.colorScheme?.text || '#000000'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            text: e.target.value,
+                          })}
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        {t('accessibility.primaryColor')}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={settings.colorScheme?.primary || '#3b82f6'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            primary: e.target.value,
+                          })}
+                          className="w-10 h-10 rounded cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={settings.colorScheme?.primary || '#3b82f6'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            primary: e.target.value,
+                          })}
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        {t('accessibility.accentColor')}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={settings.colorScheme?.accent || '#8b5cf6'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            accent: e.target.value,
+                          })}
+                          className="w-10 h-10 rounded cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={settings.colorScheme?.accent || '#8b5cf6'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            accent: e.target.value,
+                          })}
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        {t('accessibility.borderColor')}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={settings.colorScheme?.border || '#e5e7eb'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            border: e.target.value,
+                          })}
+                          className="w-10 h-10 rounded cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={settings.colorScheme?.border || '#e5e7eb'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            border: e.target.value,
+                          })}
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs text-gray-600 mb-1">
+                        {t('accessibility.secondaryColor')}
+                      </label>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={settings.colorScheme?.secondary || '#64748b'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            secondary: e.target.value,
+                          })}
+                          className="w-10 h-10 rounded cursor-pointer"
+                        />
+                        <input
+                          type="text"
+                          value={settings.colorScheme?.secondary || '#64748b'}
+                          onChange={(e) => updateSetting('colorScheme', {
+                            ...settings.colorScheme,
+                            secondary: e.target.value,
+                          })}
+                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Vista Previa */}
+                  <div className="mt-4 p-3 rounded border"
+                    style={{
+                      backgroundColor: settings.colorScheme?.background,
+                      color: settings.colorScheme?.text,
+                      borderColor: settings.colorScheme?.border,
+                    }}
+                  >
+                    <p className="text-sm mb-2">{t('accessibility.colorPreview')}</p>
+                    <button
+                      className="px-3 py-1 rounded text-sm"
+                      style={{
+                        backgroundColor: settings.colorScheme?.primary,
+                        color: '#ffffff',
+                      }}
+                    >
+                      {t('accessibility.primaryButton')}
+                    </button>
+                    {' '}
+                    <button
+                      className="px-3 py-1 rounded text-sm"
+                      style={{
+                        backgroundColor: settings.colorScheme?.accent,
+                        color: '#ffffff',
+                      }}
+                    >
+                      {t('accessibility.accentButton')}
+                    </button>
+                  </div>
+                </div>
+              )}
               
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">{t('accessibility.textToSpeech')}</span>
