@@ -89,90 +89,31 @@ export const authService = {
 // Servicio de Estudiantes
 export const estudiantesService = {
   async getAll(search?: string): Promise<Estudiante[]> {
-    try {
-      const params = search ? { search } : {};
-      const response = await api.get<Estudiante[]>('/estudiantes', { params });
-      return response.data;
-    } catch (error) {
-      // Si falla la conexión al backend, usar datos simulados
-      console.warn('Backend no disponible, usando datos de ejemplo');
-      const mockData: Estudiante[] = JSON.parse(localStorage.getItem('estudiantes') || '[]');
-      if (search) {
-        return mockData.filter(e => 
-          e.nombres.toLowerCase().includes(search.toLowerCase()) ||
-          e.apellidos.toLowerCase().includes(search.toLowerCase()) ||
-          e.email.toLowerCase().includes(search.toLowerCase()) ||
-          e.id_estudiante.includes(search)
-        );
-      }
-      return mockData;
-    }
+    const params = search ? { search } : {};
+    const response = await api.get<Estudiante[]>('/estudiantes', { params });
+    return response.data;
   },
 
   async getById(id: string): Promise<Estudiante> {
-    try {
-      const response = await api.get<Estudiante>(`/estudiantes/${id}`);
-      return response.data;
-    } catch (error) {
-      const mockData: Estudiante[] = JSON.parse(localStorage.getItem('estudiantes') || '[]');
-      const estudiante = mockData.find(e => e.id_estudiante === id);
-      if (!estudiante) throw new Error('Estudiante no encontrado');
-      return estudiante;
-    }
+    const response = await api.get<Estudiante>(`/estudiantes/${id}`);
+    return response.data;
   },
 
   async create(data: CreateEstudianteDto): Promise<Estudiante> {
-    try {
-      const response = await api.post<Estudiante>('/estudiantes', data);
-      return response.data;
-    } catch (error) {
-      // Usar almacenamiento local si el backend no está disponible
-      console.warn('Backend no disponible, guardando en localStorage');
-      const mockData: Estudiante[] = JSON.parse(localStorage.getItem('estudiantes') || '[]');
-      
-      // Verificar si el estudiante ya existe
-      if (mockData.some(e => e.id_estudiante === data.id_estudiante)) {
-        throw new Error('Ya existe un estudiante con este ID');
-      }
-      
-      const nuevoEstudiante: Estudiante = {
-        ...data,
-        created_at: new Date(),
-        updated_at: new Date(),
-      };
-      
-      mockData.push(nuevoEstudiante);
-      localStorage.setItem('estudiantes', JSON.stringify(mockData));
-      return nuevoEstudiante;
-    }
+    const response = await api.post<Estudiante>('/estudiantes', data);
+    return response.data;
   },
 
   async update(
     id: string,
     data: Partial<CreateEstudianteDto>
   ): Promise<Estudiante> {
-    try {
-      const response = await api.put<Estudiante>(`/estudiantes/${id}`, data);
-      return response.data;
-    } catch (error) {
-      const mockData: Estudiante[] = JSON.parse(localStorage.getItem('estudiantes') || '[]');
-      const index = mockData.findIndex(e => e.id_estudiante === id);
-      if (index === -1) throw new Error('Estudiante no encontrado');
-      
-      mockData[index] = { ...mockData[index], ...data, updated_at: new Date() };
-      localStorage.setItem('estudiantes', JSON.stringify(mockData));
-      return mockData[index];
-    }
+    const response = await api.put<Estudiante>(`/estudiantes/${id}`, data);
+    return response.data;
   },
 
   async delete(id: string): Promise<void> {
-    try {
-      await api.delete(`/estudiantes/${id}`);
-    } catch (error) {
-      const mockData: Estudiante[] = JSON.parse(localStorage.getItem('estudiantes') || '[]');
-      const filtered = mockData.filter(e => e.id_estudiante !== id);
-      localStorage.setItem('estudiantes', JSON.stringify(filtered));
-    }
+    await api.delete(`/estudiantes/${id}`);
   },
 
   async exportCSV(): Promise<Blob> {
