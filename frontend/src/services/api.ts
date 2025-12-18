@@ -136,9 +136,10 @@ export const prediccionesService = {
     return response.data;
   },
 
-  async generate(id_estudiante: string): Promise<any> {
+  async generate(id_estudiante: string, data?: any): Promise<any> {
     const response = await api.post('/predicciones/generar', {
       id_estudiante,
+      data,
     });
     return response.data;
   },

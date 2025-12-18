@@ -15,6 +15,7 @@ const app_service_1 = require("./app.service");
 const estudiantes_module_1 = require("./modules/estudiantes/estudiantes.module");
 const auth_module_1 = require("./auth/auth.module");
 const soporte_module_1 = require("./modules/soporte/soporte.module");
+const predicciones_module_1 = require("./modules/predicciones/predicciones.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -25,6 +26,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             estudiantes_module_1.EstudiantesModule,
             soporte_module_1.SoporteModule,
+            predicciones_module_1.PrediccionesModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

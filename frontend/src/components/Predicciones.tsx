@@ -9,6 +9,14 @@ import {
   DocumentTextIcon,
   AcademicCapIcon 
 } from '@heroicons/react/24/outline';
+import { 
+  predecirRendimiento, 
+  EstudianteAIInput, 
+  PrediccionAIOutput,
+  getRiesgoColor,
+  getRiesgoLabel,
+  formatearProbabilidad
+} from '../services/aiService';
 
 interface Prediccion {
   id_prediccion: string;
@@ -43,6 +51,7 @@ const Predicciones: React.FC = () => {
   const [predicciones, setPredicciones] = useState<Prediccion[]>([]);
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
   const [filter, setFilter] = useState('todos');
   const { searchTerm: globalSearchTerm } = useSearch();
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);
@@ -59,52 +68,90 @@ const Predicciones: React.FC = () => {
     notas_examenes_promedio: 0,
   });
   const { t } = useLanguage();
+  
+  // Estados para predicción con IA
+  const [prediccionIA, setPrediccionIA] = useState<PrediccionAIOutput | null>(null);
+  const [loadingIA, setLoadingIA] = useState(false);
 
   useEffect(() => {
     loadPredicciones();
     loadEstudiantes();
+
+    // Polling: Actualizar predicciones cada 30 segundos para mantener sincronizado
+    const intervalId = setInterval(() => {
+      loadPredicciones(true); // Modo silencioso para no mostrar spinner
+    }, 30000); // 30 segundos
+
+    // Limpiar el intervalo cuando el componente se desmonte
+    return () => clearInterval(intervalId);
   }, []);
 
-  const loadPredicciones = () => {
-    // Simular carga de datos
-    setTimeout(() => {
-      setPredicciones([
-        {
-          id_prediccion: 'pred-001',
-          id_estudiante: '1234567890',
-          nombres: 'Juan',
-          apellidos: 'Pérez',
-          fecha_prediccion: '2025-01-21',
-          nivel_riesgo: 'Alto',
-          factores_clave:
-            'Bajas notas en Cálculo (3.2/10), 40% de inasistencia, pocas horas de estudio semanales',
-          estado_prediccion: 'Completado',
-        },
-        {
-          id_prediccion: 'pred-002',
-          id_estudiante: '0987654321',
-          nombres: 'Ana',
-          apellidos: 'García',
-          fecha_prediccion: '2025-01-20',
-          nivel_riesgo: 'Bajo',
-          factores_clave:
-            'Buenas calificaciones (8.5/10), asistencia regular, técnicas de estudio efectivas',
-          estado_prediccion: 'Completado',
-        },
-        {
-          id_prediccion: 'pred-003',
-          id_estudiante: '1122334455',
-          nombres: 'Luis',
-          apellidos: 'Martínez',
-          fecha_prediccion: '2025-01-21',
-          nivel_riesgo: 'Medio',
-          factores_clave:
-            'Calificaciones promedio (6.8/10), algunas faltas justificadas, estudio irregular',
-          estado_prediccion: 'Completado',
-        },
-      ]);
-      setLoading(false);
-    }, 1000);
+  // useEffect para predicción automática con IA
+  useEffect(() => {
+    const generarPrediccionAutomatica = async () => {
+      // Solo generar si hay datos completos y válidos
+      if (
+        formData.id_estudiante && 
+        formData.notas_promedio > 0 &&
+        formData.asistencia_porcentaje > 0 &&
+        !loadingIA
+      ) {
+        const estudianteSeleccionado = estudiantes.find(e => e.id_estudiante === formData.id_estudiante);
+        
+        if (estudianteSeleccionado) {
+          try {
+            const estudianteInput: EstudianteAIInput = {
+              id_estudiante: formData.id_estudiante,
+              nombres: estudianteSeleccionado.nombres,
+              apellidos: estudianteSeleccionado.apellidos,
+              semestre_actual: estudianteSeleccionado.semestre_actual || 1,
+              notas_promedio: formData.notas_promedio,
+              notas_examenes_promedio: formData.notas_examenes_promedio,
+              entregas_tareas_porcentaje: formData.entregas_tareas_porcentaje,
+              asistencia_porcentaje: formData.asistencia_porcentaje,
+              horas_estudio_semana: formData.horas_estudio_semana,
+              participacion_clase: formData.participacion_clase as 'baja' | 'media' | 'alta',
+              usa_tecnicas_estudio: formData.horas_estudio_semana >= 10,
+            };
+
+            const prediccion = await predecirRendimiento(estudianteInput);
+            setPrediccionIA(prediccion);
+            console.log('🤖 Predicción automática generada:', prediccion);
+            
+          } catch (error) {
+            console.log('ℹ️ Servicio de IA no disponible (modo silencioso)');
+            setPrediccionIA(null);
+          }
+        }
+      }
+    };
+
+    // Ejecutar con un pequeño delay para evitar llamadas excesivas
+    const timer = setTimeout(generarPrediccionAutomatica, 1000);
+    return () => clearTimeout(timer);
+  }, [formData, estudiantes, loadingIA]);
+
+  const loadPredicciones = async (silentMode = false) => {
+    try {
+      if (!silentMode) {
+        setLoading(true);
+      } else {
+        setSyncing(true);
+      }
+      const data = await prediccionesService.getAll();
+      setPredicciones(data);
+    } catch (err) {
+      console.error('Error al cargar predicciones:', err);
+      if (!silentMode) {
+        setError('Error al cargar las predicciones');
+      }
+    } finally {
+      if (!silentMode) {
+        setLoading(false);
+      } else {
+        setSyncing(false);
+      }
+    }
   };
 
   const loadEstudiantes = async () => {
@@ -219,6 +266,54 @@ const Predicciones: React.FC = () => {
     return factores.join(', ');
   };
 
+  // Función para generar predicción con IA
+  const handleGenerarPrediccionIA = async () => {
+    if (!formData.id_estudiante) {
+      alert('⚠️ Por favor selecciona un estudiante primero');
+      return;
+    }
+
+    setLoadingIA(true);
+    try {
+      const estudianteSeleccionado = estudiantes.find(e => e.id_estudiante === formData.id_estudiante);
+      
+      // Construir el input para la IA
+      const estudianteInput: EstudianteAIInput = {
+        id_estudiante: formData.id_estudiante,
+        nombres: estudianteSeleccionado?.nombres || '',
+        apellidos: estudianteSeleccionado?.apellidos || '',
+        semestre_actual: estudianteSeleccionado?.semestre_actual || 1,
+        notas_promedio: formData.notas_promedio,
+        notas_examenes_promedio: formData.notas_examenes_promedio,
+        entregas_tareas_porcentaje: formData.entregas_tareas_porcentaje,
+        asistencia_porcentaje: formData.asistencia_porcentaje,
+        horas_estudio_semana: formData.horas_estudio_semana,
+        participacion_clase: formData.participacion_clase as 'baja' | 'media' | 'alta',
+        usa_tecnicas_estudio: formData.horas_estudio_semana >= 10,
+      };
+
+      // Llamar a la API de Python
+      const resultado = await predecirRendimiento(estudianteInput);
+      
+      setPrediccionIA(resultado);
+      
+      // Mostrar notificación de éxito
+      console.log('✅ Predicción IA generada:', resultado);
+      
+    } catch (error: any) {
+      console.error('Error al generar predicción IA:', error);
+      alert(
+        '❌ Error al conectar con el servicio de IA.\n\n' +
+        'Asegúrate de que predictor_api.py esté ejecutándose:\n' +
+        'python predictor_api.py\n\n' +
+        'URL esperada: http://localhost:8000'
+      );
+      setPrediccionIA(null);
+    } finally {
+      setLoadingIA(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -231,31 +326,56 @@ const Predicciones: React.FC = () => {
     setError('');
 
     try {
-      // Simular llamada a la API
-      const estudiante = estudiantes.find(e => e.id_estudiante === formData.id_estudiante);
+      // Generar predicción con IA
+      await handleGenerarPrediccionIA();
+
+      // Calcular nivel de riesgo y factores clave
       const nivelRiesgo = calcularNivelRiesgo(formData);
       const factoresClave = generarFactoresClave(formData);
 
-      const nuevaPrediccion: Prediccion = {
-        id_prediccion: `pred-${Date.now()}`,
-        id_estudiante: formData.id_estudiante,
+      // Obtener datos del estudiante seleccionado
+      const estudiante = estudiantes.find(e => e.id_estudiante === formData.id_estudiante);
+
+      // Crear la predicción en el backend
+      const nuevaPrediccion = await prediccionesService.generate(formData.id_estudiante, {
+        nivel_riesgo: nivelRiesgo,
+        factores_clave: factoresClave,
+        ...formData,
+      });
+
+      // Actualizar el estado local inmediatamente (tiempo real)
+      const prediccionParaMostrar: Prediccion = {
+        id_prediccion: nuevaPrediccion.id_prediccion,
+        id_estudiante: nuevaPrediccion.id_estudiante,
         nombres: estudiante?.nombres || '',
         apellidos: estudiante?.apellidos || '',
         fecha_prediccion: new Date().toISOString().split('T')[0],
-        nivel_riesgo: nivelRiesgo,
-        factores_clave: factoresClave,
-        estado_prediccion: 'Completado',
+        nivel_riesgo: nuevaPrediccion.nivel_riesgo,
+        factores_clave: nuevaPrediccion.factores_clave,
+        estado_prediccion: nuevaPrediccion.estado_prediccion || 'Completado',
       };
 
-      // Agregar la nueva predicción a la lista
-      setPredicciones((prev) => [nuevaPrediccion, ...prev]);
+      // Agregar al principio de la lista para mostrarlo inmediatamente
+      setPredicciones((prev) => [prediccionParaMostrar, ...prev]);
+      
       handleCloseModal();
 
       // Mostrar mensaje de éxito
       alert(t('predicciones.prediccionCreada'));
     } catch (err: any) {
       console.error('Error completo:', err);
-      setError(t('predicciones.errorCrear'));
+      
+      // Mostrar mensaje de error más descriptivo
+      let errorMsg = t('predicciones.errorCrear');
+      if (err.response) {
+        errorMsg += `\n\nDetalles: ${err.response.data.message || err.response.statusText}`;
+      } else if (err.request) {
+        errorMsg += '\n\nNo se pudo conectar con el servidor. Verifica que el backend esté ejecutándose en http://localhost:4000';
+      } else {
+        errorMsg += `\n\n${err.message}`;
+      }
+      
+      setError(errorMsg);
     } finally {
       setSaving(false);
     }
@@ -289,13 +409,37 @@ const Predicciones: React.FC = () => {
     }
   };
 
-  const handleRecalcular = (prediccion: Prediccion) => {
+  const handleRecalcular = async (prediccion: Prediccion) => {
     if (
       window.confirm(
         `${t('predicciones.confirmRecalcular')}: ${prediccion.nombres} ${prediccion.apellidos}?`
       )
     ) {
-      alert(t('predicciones.recalculando'));
+      try {
+        // Crear nueva predicción (recalcular)
+        const nuevaPrediccion = await prediccionesService.generate(prediccion.id_estudiante);
+
+        // Actualizar en tiempo real: reemplazar la predicción antigua con la nueva
+        setPredicciones((prev) =>
+          prev.map((p) =>
+            p.id_prediccion === prediccion.id_prediccion
+              ? {
+                  ...p,
+                  id_prediccion: nuevaPrediccion.id_prediccion,
+                  nivel_riesgo: nuevaPrediccion.nivel_riesgo,
+                  factores_clave: nuevaPrediccion.factores_clave,
+                  fecha_prediccion: new Date().toISOString().split('T')[0],
+                  estado_prediccion: nuevaPrediccion.estado_prediccion || 'Completado',
+                }
+              : p
+          )
+        );
+
+        alert('Predicción recalculada exitosamente');
+      } catch (err) {
+        console.error('Error al recalcular:', err);
+        alert('Error al recalcular la predicción');
+      }
     }
   };
 
@@ -350,7 +494,18 @@ const Predicciones: React.FC = () => {
 
       <div className="bg-white p-6 rounded-lg shadow-md">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">{t('predicciones.generadasTitulo')}</h2>
+          <div className="flex items-center space-x-3">
+            <h2 className="text-xl font-semibold text-gray-900">{t('predicciones.generadasTitulo')}</h2>
+            {syncing && (
+              <div className="flex items-center text-sm text-blue-600">
+                <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sincronizando...
+              </div>
+            )}
+          </div>
           <div className="flex space-x-4">
             <label htmlFor="filter-select" className="sr-only">
               {t('predicciones.filtrarLabel')}
@@ -628,6 +783,103 @@ const Predicciones: React.FC = () => {
                   />
                   <p className="text-xs text-gray-500 mt-1">{t('predicciones.rangoExamenes')}</p>
                 </div>
+              </div>
+
+              {/* Predicción con IA */}
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-gray-900">🤖 Análisis con Inteligencia Artificial</h4>
+                  <button
+                    type="button"
+                    onClick={handleGenerarPrediccionIA}
+                    disabled={loadingIA || !formData.id_estudiante}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {loadingIA ? (
+                      <>
+                        <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Analizando...
+                      </>
+                    ) : (
+                      '🧠 Analizar con IA'
+                    )}
+                  </button>
+                </div>
+
+                {prediccionIA && (
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-200">
+                    <div className="space-y-4">
+                      {/* Nivel de Riesgo */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span 
+                            className="px-4 py-2 rounded-full text-white font-bold text-sm shadow-md"
+                            style={{ backgroundColor: getRiesgoColor(prediccionIA.riesgo) }}
+                          >
+                            {getRiesgoLabel(prediccionIA.riesgo)}
+                          </span>
+                          <div className="text-sm">
+                            <span className="text-gray-600">Probabilidad: </span>
+                            <span className="font-bold text-gray-900">{formatearProbabilidad(prediccionIA.probabilidad)}</span>
+                          </div>
+                          <div className="text-sm">
+                            <span className="text-gray-600">Puntuación: </span>
+                            <span className="font-bold text-gray-900">{prediccionIA.puntuacion.toFixed(1)}/100</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Factores Críticos */}
+                      <div>
+                        <p className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                          <span className="text-red-500">⚠️</span>
+                          Factores Críticos:
+                        </p>
+                        <ul className="space-y-1">
+                          {prediccionIA.factores_criticos.map((factor, idx) => (
+                            <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                              <span className="text-red-500 mt-0.5">•</span>
+                              <span>{factor}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Recomendaciones */}
+                      <div>
+                        <p className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                          <span className="text-green-500">💡</span>
+                          Recomendaciones:
+                        </p>
+                        <ul className="space-y-1">
+                          {prediccionIA.recomendaciones.map((rec, idx) => (
+                            <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                              <span className="text-green-500 mt-0.5">•</span>
+                              <span>{rec}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      {/* Metadata */}
+                      <div className="pt-2 border-t border-purple-200 flex justify-between text-xs text-gray-500">
+                        <span>Modelo v{prediccionIA.modelo_version}</span>
+                        <span>{new Date(prediccionIA.fecha_prediccion).toLocaleString('es-ES')}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!prediccionIA && !loadingIA && (
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-center">
+                    <p className="text-sm text-gray-500">
+                      💡 Completa los datos del estudiante y haz clic en "Analizar con IA" para obtener una predicción basada en inteligencia artificial.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Buttons */}
