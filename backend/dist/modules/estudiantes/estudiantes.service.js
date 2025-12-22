@@ -14,56 +14,68 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EstudiantesService = void 0;
 const common_1 = require("@nestjs/common");
-const typeorm_1 = require("@nestjs/typeorm");
-const typeorm_2 = require("typeorm");
-const estudiante_entity_1 = require("../../entities/estudiante.entity");
+const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
+const estudiante_schema_1 = require("../../schemas/estudiante.schema");
 let EstudiantesService = class EstudiantesService {
-    constructor(estudiantesRepository) {
-        this.estudiantesRepository = estudiantesRepository;
+    constructor(estudiantesModel) {
+        this.estudiantesModel = estudiantesModel;
     }
     async findAll() {
-        return await this.estudiantesRepository.find({
-            order: { apellidos: 'ASC', nombres: 'ASC' },
-        });
+        return await this.estudiantesModel
+            .find()
+            .sort({ apellidos: 1, nombres: 1 })
+            .exec();
     }
     async findOne(id) {
-        const estudiante = await this.estudiantesRepository.findOne({
-            where: { id_estudiante: id },
-        });
+        const estudiante = await this.estudiantesModel
+            .findOne({ id_estudiante: id })
+            .exec();
         if (!estudiante) {
             throw new common_1.NotFoundException(`Estudiante con ID ${id} no encontrado`);
         }
         return estudiante;
     }
     async create(createEstudianteDto) {
-        const estudiante = this.estudiantesRepository.create(createEstudianteDto);
-        return await this.estudiantesRepository.save(estudiante);
+        const estudiante = new this.estudiantesModel(createEstudianteDto);
+        return await estudiante.save();
     }
     async update(id, updateEstudianteDto) {
-        const estudiante = await this.findOne(id);
-        Object.assign(estudiante, updateEstudianteDto);
-        return await this.estudiantesRepository.save(estudiante);
+        const estudiante = await this.estudiantesModel
+            .findOneAndUpdate({ id_estudiante: id }, { $set: updateEstudianteDto }, { new: true })
+            .exec();
+        if (!estudiante) {
+            throw new common_1.NotFoundException(`Estudiante con ID ${id} no encontrado`);
+        }
+        return estudiante;
     }
     async remove(id) {
-        const estudiante = await this.findOne(id);
-        await this.estudiantesRepository.remove(estudiante);
+        const result = await this.estudiantesModel
+            .findOneAndDelete({ id_estudiante: id })
+            .exec();
+        if (!result) {
+            throw new common_1.NotFoundException(`Estudiante con ID ${id} no encontrado`);
+        }
     }
     async search(term) {
-        return await this.estudiantesRepository
-            .createQueryBuilder('estudiante')
-            .where('estudiante.nombres LIKE :term', { term: `%${term}%` })
-            .orWhere('estudiante.apellidos LIKE :term', { term: `%${term}%` })
-            .orWhere('estudiante.email LIKE :term', { term: `%${term}%` })
-            .orWhere('estudiante.id_estudiante LIKE :term', { term: `%${term}%` })
-            .orderBy('estudiante.apellidos', 'ASC')
-            .addOrderBy('estudiante.nombres', 'ASC')
-            .getMany();
+        const regex = new RegExp(term, 'i');
+        return await this.estudiantesModel
+            .find({
+            $or: [
+                { nombres: regex },
+                { apellidos: regex },
+                { email: regex },
+                { id_estudiante: regex },
+            ],
+        })
+            .sort({ apellidos: 1, nombres: 1 })
+            .exec();
     }
 };
 exports.EstudiantesService = EstudiantesService;
 exports.EstudiantesService = EstudiantesService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(estudiante_entity_1.Estudiante)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(0, (0, mongoose_1.InjectModel)(estudiante_schema_1.Estudiante.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model])
 ], EstudiantesService);
 //# sourceMappingURL=estudiantes.service.js.map

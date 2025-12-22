@@ -1,10 +1,10 @@
-import { Repository } from 'typeorm';
-import { Estudiante } from '../../entities/estudiante.entity';
+import { Model } from 'mongoose';
+import { Estudiante, EstudianteDocument } from '../../schemas/estudiante.schema';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
 export declare class EstudiantesService {
-    private estudiantesRepository;
-    constructor(estudiantesRepository: Repository<Estudiante>);
+    private estudiantesModel;
+    constructor(estudiantesModel: Model<EstudianteDocument>);
     findAll(): Promise<Estudiante[]>;
     findOne(id: string): Promise<Estudiante>;
     create(createEstudianteDto: CreateEstudianteDto): Promise<Estudiante>;

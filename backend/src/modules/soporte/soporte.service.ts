@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Soporte } from '../../entities/soporte.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { Soporte, SoporteDocument } from '../../schemas/soporte.schema';
 import { CreateSoporteDto } from './dto/create-soporte.dto';
 
 @Injectable()
 export class SoporteService {
   constructor(
-    @InjectRepository(Soporte)
-    private readonly soporteRepo: Repository<Soporte>,
+    @InjectModel(Soporte.name)
+    private readonly soporteModel: Model<SoporteDocument>,
   ) {}
 
   async create(dto: CreateSoporteDto): Promise<Soporte> {
-    const ent = this.soporteRepo.create(dto as unknown as Soporte);
-    return this.soporteRepo.save(ent as Soporte);
+    const soporte = new this.soporteModel(dto);
+    return await soporte.save();
   }
 
   async findAll(): Promise<Soporte[]> {
-    return this.soporteRepo.find({ order: { created_at: 'DESC' } });
+    return this.soporteModel.find().sort({ created_at: -1 }).exec();
   }
 }

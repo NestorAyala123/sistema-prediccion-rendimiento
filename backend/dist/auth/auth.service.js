@@ -15,56 +15,93 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthService = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
-const typeorm_1 = require("@nestjs/typeorm");
-const typeorm_2 = require("typeorm");
+const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
 const bcrypt = require("bcrypt");
-const uuid_1 = require("uuid");
-const usuario_entity_1 = require("../entities/usuario.entity");
+const usuario_schema_1 = require("../schemas/usuario.schema");
+const estudiante_schema_1 = require("../schemas/estudiante.schema");
 let AuthService = class AuthService {
-    constructor(usuariosRepository, jwtService) {
-        this.usuariosRepository = usuariosRepository;
+    constructor(usuarioModel, estudianteModel, jwtService) {
+        this.usuarioModel = usuarioModel;
+        this.estudianteModel = estudianteModel;
         this.jwtService = jwtService;
     }
     async register(registerDto) {
-        const existingUser = await this.usuariosRepository.findOne({
-            where: { email: registerDto.email },
-        });
-        if (existingUser) {
+        const existingUser = await this.usuarioModel.findOne({
+            email: registerDto.email,
+        }).exec();
+        const existingEstudiante = await this.estudianteModel.findOne({
+            email: registerDto.email,
+        }).exec();
+        if (existingUser || existingEstudiante) {
             throw new common_1.ConflictException('El email ya está registrado');
         }
         const hashedPassword = await bcrypt.hash(registerDto.password, 10);
-        const usuario = this.usuariosRepository.create({
-            id_usuario: (0, uuid_1.v4)(),
+        let rol = 'estudiante';
+        if (registerDto.email.includes('@admin.')) {
+            rol = 'admin';
+        }
+        else if (registerDto.email.includes('@docente.') || registerDto.email.includes('@profesor.')) {
+            rol = 'docente';
+        }
+        if (rol === 'estudiante') {
+            const estudiante = new this.estudianteModel({
+                id_estudiante: registerDto.email.split('@')[0],
+                email: registerDto.email,
+                nombres: registerDto.nombres,
+                apellidos: registerDto.apellidos,
+                password: hashedPassword,
+                activo: true,
+            });
+            await estudiante.save();
+            const token = this.jwtService.sign({
+                sub: estudiante._id.toString(),
+                email: estudiante.email,
+                role: 'estudiante',
+            });
+            return {
+                access_token: token,
+                user: {
+                    id: estudiante._id.toString(),
+                    email: estudiante.email,
+                    nombres: estudiante.nombres,
+                    apellidos: estudiante.apellidos,
+                    role: 'estudiante',
+                },
+            };
+        }
+        const usuario = new this.usuarioModel({
             email: registerDto.email,
             nombres: registerDto.nombres,
             apellidos: registerDto.apellidos,
             password: hashedPassword,
-            rol: 'usuario',
+            rol: rol,
+            activo: true,
         });
-        await this.usuariosRepository.save(usuario);
+        await usuario.save();
         const token = this.jwtService.sign({
-            sub: usuario.id_usuario,
+            sub: usuario._id.toString(),
             email: usuario.email,
             role: usuario.rol,
         });
         return {
             access_token: token,
             user: {
-                id: usuario.id_usuario,
+                id: usuario._id.toString(),
                 email: usuario.email,
                 nombres: usuario.nombres,
                 apellidos: usuario.apellidos,
-                rol: usuario.rol,
+                role: usuario.rol,
             },
         };
     }
     async updateProfile(userId, dto) {
-        const usuario = await this.usuariosRepository.findOne({ where: { id_usuario: userId } });
+        const usuario = await this.usuarioModel.findById(userId).exec();
         if (!usuario) {
             throw new common_1.UnauthorizedException('Usuario no encontrado');
         }
         if (dto.email && dto.email !== usuario.email) {
-            const exists = await this.usuariosRepository.findOne({ where: { email: dto.email } });
+            const exists = await this.usuarioModel.findOne({ email: dto.email }).exec();
             if (exists) {
                 throw new common_1.ConflictException('El email ya está registrado');
             }
@@ -74,55 +111,79 @@ let AuthService = class AuthService {
             usuario.nombres = dto.nombres;
         if (dto.apellidos)
             usuario.apellidos = dto.apellidos;
-        await this.usuariosRepository.save(usuario);
+        await usuario.save();
         return {
             user: {
-                id: usuario.id_usuario,
+                id: usuario._id.toString(),
                 email: usuario.email,
                 nombres: usuario.nombres,
                 apellidos: usuario.apellidos,
-                rol: usuario.rol,
+                role: usuario.rol,
             },
         };
     }
     async login(loginDto) {
-        const usuario = await this.usuariosRepository.findOne({
-            where: { email: loginDto.email },
-        });
-        if (!usuario) {
+        const usuario = await this.usuarioModel.findOne({
+            email: loginDto.email,
+        }).exec();
+        if (usuario) {
+            const isPasswordValid = await bcrypt.compare(loginDto.password, usuario.password);
+            if (!isPasswordValid) {
+                throw new common_1.UnauthorizedException('Email o contraseña inválidos');
+            }
+            const token = this.jwtService.sign({
+                sub: usuario._id.toString(),
+                email: usuario.email,
+                role: usuario.rol,
+            });
+            return {
+                access_token: token,
+                user: {
+                    id: usuario._id.toString(),
+                    email: usuario.email,
+                    nombres: usuario.nombres,
+                    apellidos: usuario.apellidos,
+                    role: usuario.rol,
+                },
+            };
+        }
+        const estudiante = await this.estudianteModel.findOne({
+            email: loginDto.email,
+        }).exec();
+        if (!estudiante) {
             throw new common_1.UnauthorizedException('Email o contraseña inválidos');
         }
-        const isPasswordValid = await bcrypt.compare(loginDto.password, usuario.password);
+        const isPasswordValid = await bcrypt.compare(loginDto.password, estudiante.password);
         if (!isPasswordValid) {
             throw new common_1.UnauthorizedException('Email o contraseña inválidos');
         }
         const token = this.jwtService.sign({
-            sub: usuario.id_usuario,
-            email: usuario.email,
-            role: usuario.rol,
+            sub: estudiante._id.toString(),
+            email: estudiante.email,
+            role: 'estudiante',
         });
         return {
             access_token: token,
             user: {
-                id: usuario.id_usuario,
-                email: usuario.email,
-                nombres: usuario.nombres,
-                apellidos: usuario.apellidos,
-                rol: usuario.rol,
+                id: estudiante._id.toString(),
+                email: estudiante.email,
+                nombres: estudiante.nombres,
+                apellidos: estudiante.apellidos,
+                role: 'estudiante',
             },
         };
     }
     async validateUser(id) {
-        return this.usuariosRepository.findOne({
-            where: { id_usuario: id },
-        });
+        return this.usuarioModel.findById(id).exec();
     }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(usuario_entity_1.Usuario)),
-    __metadata("design:paramtypes", [typeorm_2.Repository,
+    __param(0, (0, mongoose_1.InjectModel)(usuario_schema_1.Usuario.name)),
+    __param(1, (0, mongoose_1.InjectModel)(estudiante_schema_1.Estudiante.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
         jwt_1.JwtService])
 ], AuthService);
 //# sourceMappingURL=auth.service.js.map

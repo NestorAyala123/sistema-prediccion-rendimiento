@@ -8,8 +8,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SoporteModule = void 0;
 const common_1 = require("@nestjs/common");
-const typeorm_1 = require("@nestjs/typeorm");
-const soporte_entity_1 = require("../../entities/soporte.entity");
+const mongoose_1 = require("@nestjs/mongoose");
+const soporte_schema_1 = require("../../schemas/soporte.schema");
 const soporte_service_1 = require("./soporte.service");
 const soporte_controller_1 = require("./soporte.controller");
 let SoporteModule = class SoporteModule {
@@ -17,7 +17,7 @@ let SoporteModule = class SoporteModule {
 exports.SoporteModule = SoporteModule;
 exports.SoporteModule = SoporteModule = __decorate([
     (0, common_1.Module)({
-        imports: [typeorm_1.TypeOrmModule.forFeature([soporte_entity_1.Soporte])],
+        imports: [mongoose_1.MongooseModule.forFeature([{ name: soporte_schema_1.Soporte.name, schema: soporte_schema_1.SoporteSchema }])],
         providers: [soporte_service_1.SoporteService],
         controllers: [soporte_controller_1.SoporteController],
         exports: [soporte_service_1.SoporteService],

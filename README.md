@@ -1,8 +1,21 @@
 ﻿# 🎓 Sistema de Predicción de Rendimiento Académico con IA
 
-Sistema web completo para predecir el rendimiento académico de estudiantes utilizando Inteligencia Artificial.
+Sistema web completo para predecir el rendimiento académico de estudiantes utilizando Inteligencia Artificial y **MongoDB**.
 
 ## 🚀 Inicio Rápido
+
+### **Prerequisitos**
+1. **MongoDB** instalado y corriendo
+2. **Node.js** (v16+)
+3. **Python** (v3.8+)
+
+### **Iniciar MongoDB**
+```powershell
+# Windows
+net start MongoDB
+# O manualmente
+mongod --dbpath=C:\data\db
+```
 
 ### **Iniciar el Sistema Completo**
 ```powershell
@@ -10,8 +23,9 @@ Sistema web completo para predecir el rendimiento académico de estudiantes util
 ```
 
 Este comando inicia automáticamente:
+- 🗄️ **MongoDB** (Base de datos) → puerto 27017
 - 🤖 **Microservicio de IA** (FastAPI) → http://localhost:8000
-- 🔧 **Backend** (NestJS) → http://localhost:4000
+- 🔧 **Backend** (NestJS + MongoDB) → http://localhost:4000
 - ⚛️ **Frontend** (React) → http://localhost:3000
 
 ### **Detener el Sistema**
@@ -25,6 +39,7 @@ Este comando inicia automáticamente:
 
 Antes de ejecutar el sistema, asegúrate de tener instalado:
 
+- **MongoDB** (v6.0 o superior) - [Descargar](https://www.mongodb.com/try/download/community)
 - **Node.js** (v16 o superior) - [Descargar](https://nodejs.org/)
 - **Python** (v3.8 o superior) - [Descargar](https://www.python.org/)
 - **npm** (incluido con Node.js)
@@ -33,21 +48,34 @@ Antes de ejecutar el sistema, asegúrate de tener instalado:
 
 ## 🛠️ Instalación (Solo Primera Vez)
 
-### 1. Instalar dependencias del Backend
+### 1. Instalar MongoDB
+```powershell
+# Windows: Descargar desde https://www.mongodb.com/try/download/community
+# Instalar como servicio de Windows
+```
+
+### 2. Instalar dependencias del Backend
 ```powershell
 cd backend
 npm install
 cd ..
 ```
 
-### 2. Instalar dependencias del Frontend
+### 3. Poblar la Base de Datos
+```powershell
+cd backend
+npm run seed
+cd ..
+```
+
+### 4. Instalar dependencias del Frontend
 ```powershell
 cd frontend
 npm install
 cd ..
 ```
 
-### 3. Crear entorno virtual de Python e instalar dependencias
+### 5. Crear entorno virtual de Python e instalar dependencias
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
@@ -71,18 +99,32 @@ deactivate
     ▼                              ▼
 ┌─────────────────┐    ┌──────────────────────┐
 │    BACKEND      │    │  MICROSERVICIO IA    │
-│  NestJS + SQLite│    │  FastAPI + Python    │
+│ NestJS + MongoDB│    │  FastAPI + Python    │
 │  localhost:4000 │    │  localhost:8000      │
-└─────────────────┘    └──────────────────────┘
+└────────┬────────┘    └──────────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│    MONGODB      │
+│  NoSQL Database │
+│  localhost:27017│
+└─────────────────┘
 ```
 
 ### **Componentes**
 
+#### 🗄️ **MongoDB**
+- Base de datos NoSQL principal
+- 9 colecciones (usuarios, estudiantes, calificaciones, etc.)
+- Schemas con Mongoose
+- Datos persistentes
+
 #### 🔧 **Backend (NestJS)**
-- API REST para gestión de estudiantes
-- Base de datos SQLite
+- API REST para gestión académica
+- Mongoose ODM
 - Autenticación JWT
 - CRUD completo
+- Sistema de auditoría
 
 #### 🤖 **Microservicio de IA (FastAPI)**
 - Modelo de predicción de riesgo académico
@@ -103,23 +145,37 @@ deactivate
 ### **1. Acceder a la Aplicación**
 Abre tu navegador en: http://localhost:3000
 
-### **2. Registrarse/Iniciar Sesión**
-- Crea una cuenta de consejero académico
-- Inicia sesión con tus credenciales
+### **2. Iniciar Sesión**
+Usuarios de prueba (seed):
+- **Admin**: admin@universidad.edu / password123
+- **Docente 1**: carlos.rodriguez@universidad.edu / password123
+- **Docente 2**: maria.gonzalez@universidad.edu / password123
+
+**Nota**: Los estudiantes se registran desde su propia interfaz, no tienen acceso al sistema administrativo.
 
 ### **3. Gestionar Estudiantes**
+- Ver lista de estudiantes (ya hay 3 de ejemplo)
 - Agregar nuevos estudiantes
-- Ver lista de estudiantes
 - Editar información
+- Ver historial académico completo
 
-### **4. Generar Predicciones con IA**
+### **4. Registrar Calificaciones**
+1. Selecciona un estudiante
+2. Elige la asignatura y periodo
+3. Registra notas por tipo de evaluación
+4. El sistema calcula promedios automáticamente
+
+### **5. Control de Asistencia**
+1. Selecciona asignatura y fecha
+2. Marca asistencia de estudiantes
+3. Ver estadísticas de asistencia
+4. Alertas automáticas (< 75%)
+
+### **6. Generar Predicciones con IA**
 1. Ve a la sección **"Predicciones"**
 2. Haz clic en **"Generar Nuevas"**
 3. Selecciona un estudiante
-4. Completa los datos académicos:
-   - Notas promedio
-   - Asistencia
-   - Horas de estudio
+4. El sistema analiza automáticamente:
    - Participación en clase
    - Entregas de tareas
    - Notas de exámenes

@@ -10,17 +10,41 @@ services:
     environment:
       - PORT=4000
       - JWT_SECRET=${JWT_SECRET:-change-this-secret}
+      - PREDICTOR_API_URL=http://predictor:8000
     volumes:
       - ./backend/database:/app/database
     ports:
       - "4000:4000"
+    depends_on:
+      - predictor
     restart: unless-stopped
+
+  predictor:
+    build:
+      context: .
+      dockerfile: Dockerfile.predictor
+    container_name: academic_predictor
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: academic_frontend
+    environment:
+      - REACT_APP_API_URL=http://localhost:4000
+      - REACT_APP_PREDICTOR_URL=http://localhost:8000
     ports:
       - "3000:80" # mapear puerto 80 del contenedor a 3000 local
+    depends_on:
+      - backend
+      - predictor
     restart: unless-stopped

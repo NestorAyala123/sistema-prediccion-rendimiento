@@ -10,8 +10,9 @@ exports.AuthModule = void 0;
 const common_1 = require("@nestjs/common");
 const jwt_1 = require("@nestjs/jwt");
 const passport_1 = require("@nestjs/passport");
-const typeorm_1 = require("@nestjs/typeorm");
-const usuario_entity_1 = require("../entities/usuario.entity");
+const mongoose_1 = require("@nestjs/mongoose");
+const usuario_schema_1 = require("../schemas/usuario.schema");
+const estudiante_schema_1 = require("../schemas/estudiante.schema");
 const auth_service_1 = require("./auth.service");
 const auth_controller_1 = require("./auth.controller");
 const jwt_strategy_1 = require("./strategies/jwt.strategy");
@@ -21,7 +22,10 @@ exports.AuthModule = AuthModule;
 exports.AuthModule = AuthModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            typeorm_1.TypeOrmModule.forFeature([usuario_entity_1.Usuario]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: usuario_schema_1.Usuario.name, schema: usuario_schema_1.UsuarioSchema },
+                { name: estudiante_schema_1.Estudiante.name, schema: estudiante_schema_1.EstudianteSchema }
+            ]),
             passport_1.PassportModule,
             jwt_1.JwtModule.register({
                 secret: process.env.JWT_SECRET || 'your-super-secret-key-change-in-production',

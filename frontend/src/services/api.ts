@@ -152,4 +152,88 @@ export const prediccionesService = {
   },
 };
 
+// Servicio de Asignaturas
+export const asignaturasService = {
+  async getAll(): Promise<any[]> {
+    const response = await api.get('/asignaturas');
+    return response.data;
+  },
+
+  async getById(id: string): Promise<any> {
+    const response = await api.get(`/asignaturas/${id}`);
+    return response.data;
+  },
+
+  async create(data: { id_asignatura: string; nombre_asignatura: string; creditos?: number }): Promise<any> {
+    const response = await api.post('/asignaturas', data);
+    return response.data;
+  },
+
+  async update(id: string, data: Partial<{ nombre_asignatura: string; creditos: number }>): Promise<any> {
+    const response = await api.put(`/asignaturas/${id}`, data);
+    return response.data;
+  },
+
+  async delete(id: string): Promise<void> {
+    await api.delete(`/asignaturas/${id}`);
+  },
+};
+
+// Servicio de Calificaciones
+export const calificacionesService = {
+  async getAll(): Promise<any[]> {
+    const response = await api.get('/calificaciones');
+    return response.data;
+  },
+
+  async getByEstudiante(id_estudiante: string): Promise<any[]> {
+    const response = await api.get(`/calificaciones/estudiante/${id_estudiante}`);
+    return response.data;
+  },
+
+  async getByPeriodo(periodo: string): Promise<any[]> {
+    const response = await api.get(`/calificaciones/periodo/${periodo}`);
+    return response.data;
+  },
+
+  async getByAsignaturaYPeriodo(id_asignatura: string, periodo: string): Promise<any[]> {
+    const response = await api.get(`/calificaciones/asignatura/${id_asignatura}/periodo/${periodo}`);
+    return response.data;
+  },
+
+  async create(data: {
+    id_inscripcion: string;
+    tipo_evaluacion: string;
+    nota: number;
+  }): Promise<any> {
+    const response = await api.post('/calificaciones', data);
+    return response.data;
+  },
+
+  async createPorPeriodo(data: {
+    id_estudiante: string;
+    id_asignatura: string;
+    periodo_academico: string;
+    tipo_evaluacion: string;
+    nota: number;
+  }): Promise<any> {
+    const response = await api.post('/calificaciones/por-periodo', data);
+    return response.data;
+  },
+
+  async update(id: string, data: Partial<{ nota: number; tipo_evaluacion: string }>): Promise<any> {
+    const response = await api.put(`/calificaciones/${id}`, data);
+    return response.data;
+  },
+
+  async delete(id: string): Promise<void> {
+    await api.delete(`/calificaciones/${id}`);
+  },
+
+  async getPromedioEstudiantePeriodo(id_estudiante: string, periodo: string): Promise<{ promedio: number }> {
+    const response = await api.get(`/calificaciones/promedio/estudiante/${id_estudiante}/periodo/${periodo}`);
+    return response.data;
+  },
+};
+
 export default api;

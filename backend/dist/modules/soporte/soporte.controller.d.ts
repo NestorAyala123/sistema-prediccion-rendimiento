@@ -5,10 +5,10 @@ export declare class SoporteController {
     constructor(soporteService: SoporteService);
     create(dto: CreateSoporteDto): Promise<{
         success: boolean;
-        data: import("../../entities/soporte.entity").Soporte;
+        data: import("../../schemas/soporte.schema").Soporte;
     }>;
     findAll(): Promise<{
         success: boolean;
-        data: import("../../entities/soporte.entity").Soporte[];
+        data: import("../../schemas/soporte.schema").Soporte[];
     }>;
 }

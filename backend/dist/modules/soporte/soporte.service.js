@@ -14,25 +14,25 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SoporteService = void 0;
 const common_1 = require("@nestjs/common");
-const typeorm_1 = require("@nestjs/typeorm");
-const typeorm_2 = require("typeorm");
-const soporte_entity_1 = require("../../entities/soporte.entity");
+const mongoose_1 = require("@nestjs/mongoose");
+const mongoose_2 = require("mongoose");
+const soporte_schema_1 = require("../../schemas/soporte.schema");
 let SoporteService = class SoporteService {
-    constructor(soporteRepo) {
-        this.soporteRepo = soporteRepo;
+    constructor(soporteModel) {
+        this.soporteModel = soporteModel;
     }
     async create(dto) {
-        const ent = this.soporteRepo.create(dto);
-        return this.soporteRepo.save(ent);
+        const soporte = new this.soporteModel(dto);
+        return await soporte.save();
     }
     async findAll() {
-        return this.soporteRepo.find({ order: { created_at: 'DESC' } });
+        return this.soporteModel.find().sort({ created_at: -1 }).exec();
     }
 };
 exports.SoporteService = SoporteService;
 exports.SoporteService = SoporteService = __decorate([
     (0, common_1.Injectable)(),
-    __param(0, (0, typeorm_1.InjectRepository)(soporte_entity_1.Soporte)),
-    __metadata("design:paramtypes", [typeorm_2.Repository])
+    __param(0, (0, mongoose_1.InjectModel)(soporte_schema_1.Soporte.name)),
+    __metadata("design:paramtypes", [mongoose_2.Model])
 ], SoporteService);
 //# sourceMappingURL=soporte.service.js.map

@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { PrediccionesController } from './predicciones.controller';
 import { PrediccionesService } from './predicciones.service';
-import { PrediccionRiesgo } from '../../entities/prediccion-riesgo.entity';
-import { Estudiante } from '../../entities/estudiante.entity';
+import { PrediccionRiesgo, PrediccionRiesgoSchema } from '../../schemas/prediccion-riesgo.schema';
+import { Estudiante, EstudianteSchema } from '../../schemas/estudiante.schema';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PrediccionRiesgo, Estudiante])],
+  imports: [
+    MongooseModule.forFeature([
+      { name: PrediccionRiesgo.name, schema: PrediccionRiesgoSchema },
+      { name: Estudiante.name, schema: EstudianteSchema },
+    ]),
+    NotificacionesModule,
+  ],
   controllers: [PrediccionesController],
   providers: [PrediccionesService],
   exports: [PrediccionesService],

@@ -16,12 +16,36 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, setMobileOpen }) 
   const { user, logout } = useAuth();
   const { t } = useLanguage();
 
-  const items = [
-    { to: '/', label: t('sidebar.panel'), icon: 'home' },
-    { to: '/predicciones', label: t('sidebar.predicciones'), icon: 'chart' },
-    { to: '/estudiantes', label: t('sidebar.estudiantes'), icon: 'users' },
-    { to: '/soporte', label: t('sidebar.soporte'), icon: 'support' },
-  ];
+  // Determinar el rol y el prefijo de ruta
+  const userRole = user?.role || 'estudiante';
+  const rolePrefix = userRole === 'administrador' || userRole === 'admin' 
+    ? '/admin' 
+    : userRole === 'docente' 
+    ? '/docente' 
+    : '/estudiante';
+
+  // Definir items del menú según el rol
+  const getMenuItems = () => {
+    if (userRole === 'administrador' || userRole === 'admin') {
+      return [
+        { to: `${rolePrefix}/dashboard`, label: t('sidebar.panel'), icon: 'home' },
+        { to: `${rolePrefix}/estudiantes`, label: t('sidebar.estudiantes'), icon: 'users' },
+        { to: `${rolePrefix}/predicciones`, label: t('sidebar.predicciones'), icon: 'chart' },
+        { to: `${rolePrefix}/soporte`, label: t('sidebar.soporte'), icon: 'support' },
+      ];
+    } else if (userRole === 'docente') {
+      return [
+        { to: `${rolePrefix}/dashboard`, label: 'Dashboard', icon: 'home' },
+        { to: `${rolePrefix}/calificaciones`, label: 'Calificaciones', icon: 'chart' },
+      ];
+    } else {
+      return [
+        { to: `${rolePrefix}/dashboard`, label: 'Mi Dashboard', icon: 'home' },
+      ];
+    }
+  };
+
+  const items = getMenuItems();
 
   const handleLogout = () => {
     logout();

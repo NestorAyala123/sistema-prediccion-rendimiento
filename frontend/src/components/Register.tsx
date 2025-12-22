@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../services/api';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Register: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     nombres: '',
     apellidos: '',
@@ -33,19 +35,19 @@ const Register: React.FC = () => {
       !formData.email ||
       !formData.password
     ) {
-      setError('Por favor complete todos los campos');
+      setError(t('register.completeCampos'));
       setLoading(false);
       return;
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
+      setError(t('register.passwordNoCoincide'));
       setLoading(false);
       return;
     }
 
     if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres');
+      setError(t('register.passwordMinLength'));
       setLoading(false);
       return;
     }
@@ -82,8 +84,8 @@ const Register: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center px-4">
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Crear Cuenta</h1>
-          <p className="text-gray-600 mt-2">Sistema de Predicción Académica</p>
+          <h1 className="text-3xl font-bold text-gray-900">{t('register.title')}</h1>
+          <p className="text-gray-600 mt-2">{t('register.subtitle')}</p>
         </div>
 
         {error && (
@@ -99,7 +101,7 @@ const Register: React.FC = () => {
                 htmlFor="nombres"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Nombres
+                {t('register.nombres')}
               </label>
               <input
                 id="nombres"
@@ -107,7 +109,7 @@ const Register: React.FC = () => {
                 name="nombres"
                 value={formData.nombres}
                 onChange={handleChange}
-                placeholder="Juan"
+                placeholder={t('register.placeholderNombres')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 required
               />
@@ -117,7 +119,7 @@ const Register: React.FC = () => {
                 htmlFor="apellidos"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Apellidos
+                {t('register.apellidos')}
               </label>
               <input
                 id="apellidos"
@@ -125,7 +127,7 @@ const Register: React.FC = () => {
                 name="apellidos"
                 value={formData.apellidos}
                 onChange={handleChange}
-                placeholder="Pérez"
+                placeholder={t('register.placeholderApellidos')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                 required
               />
@@ -137,7 +139,7 @@ const Register: React.FC = () => {
               htmlFor="email"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Correo Electrónico
+              {t('register.email')}
             </label>
             <input
               id="email"
@@ -145,10 +147,13 @@ const Register: React.FC = () => {
               name="email"
               value={formData.email}
               onChange={handleChange}
-              placeholder="usuario@universidad.edu"
+              placeholder={t('register.placeholderEmail')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
+            <p className="mt-1 text-xs text-gray-500">
+              {t('register.rolHint')}
+            </p>
           </div>
 
           <div>
@@ -156,7 +161,7 @@ const Register: React.FC = () => {
               htmlFor="password"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Contraseña
+              {t('register.password')}
             </label>
             <input
               id="password"
@@ -164,7 +169,7 @@ const Register: React.FC = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder={t('register.placeholderPassword')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -175,7 +180,7 @@ const Register: React.FC = () => {
               htmlFor="confirmPassword"
               className="block text-sm font-medium text-gray-700 mb-1"
             >
-              Confirmar Contraseña
+              {t('register.confirmPassword')}
             </label>
             <input
               id="confirmPassword"
@@ -183,7 +188,7 @@ const Register: React.FC = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              placeholder="••••••••"
+              placeholder={t('register.placeholderPassword')}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -194,18 +199,18 @@ const Register: React.FC = () => {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
           >
-            {loading ? 'Registrando...' : 'Registrarse'}
+            {loading ? t('register.registrando') : t('register.registrarse')}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-gray-600 text-sm">
-            ¿Ya tienes cuenta?{' '}
+            {t('register.yaTienesCuenta')}{' '}
             <Link
               to="/login"
               className="text-blue-600 hover:underline font-medium"
             >
-              Inicia sesión aquí
+              {t('register.iniciaSesion')}
             </Link>
           </p>
         </div>

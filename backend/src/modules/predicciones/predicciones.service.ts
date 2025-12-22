@@ -1,90 +1,185 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { PrediccionRiesgo } from '../../entities/prediccion-riesgo.entity';
-import { Estudiante } from '../../entities/estudiante.entity';
-import { v4 as uuidv4 } from 'uuid';
+import { Injectable, NotFoundException, HttpException, HttpStatus } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { PrediccionRiesgo, PrediccionRiesgoDocument } from '../../schemas/prediccion-riesgo.schema';
+import { Estudiante, EstudianteDocument } from '../../schemas/estudiante.schema';
+import axios from 'axios';
+import { NotificacionesService } from '../notificaciones/notificaciones.service';
 
 @Injectable()
 export class PrediccionesService {
+  private readonly predictorUrl: string;
+
   constructor(
-    @InjectRepository(PrediccionRiesgo)
-    private prediccionesRepository: Repository<PrediccionRiesgo>,
-    @InjectRepository(Estudiante)
-    private estudiantesRepository: Repository<Estudiante>,
-  ) {}
+    @InjectModel(PrediccionRiesgo.name)
+    private prediccionesModel: Model<PrediccionRiesgoDocument>,
+    @InjectModel(Estudiante.name)
+    private estudiantesModel: Model<EstudianteDocument>,
+    private notificacionesService: NotificacionesService,
+  ) {
+    // Usar variable de entorno o localhost por defecto
+    this.predictorUrl = process.env.PREDICTOR_API_URL || 'http://localhost:8000';
+  }
 
   async findAll(): Promise<any[]> {
-    const predicciones = await this.prediccionesRepository.find({
-      relations: ['estudiante'],
-      order: { fecha_prediccion: 'DESC' },
-    });
+    const predicciones = await this.prediccionesModel
+      .find()
+      .sort({ fecha_prediccion: -1 })
+      .exec();
 
     // Formatear respuesta para incluir nombres y apellidos del estudiante
-    return predicciones.map(pred => ({
-      id_prediccion: pred.id_prediccion,
-      id_estudiante: pred.id_estudiante,
-      nombres: pred.estudiante?.nombres || '',
-      apellidos: pred.estudiante?.apellidos || '',
-      fecha_prediccion: pred.fecha_prediccion,
-      nivel_riesgo: pred.nivel_riesgo,
-      factores_clave: pred.factores_clave,
-      estado_prediccion: pred.estado_prediccion,
-    }));
+    const result = [];
+    for (const pred of predicciones) {
+      const estudiante = await this.estudiantesModel.findOne({ id_estudiante: pred.id_estudiante }).exec();
+      result.push({
+        id_prediccion: pred._id,
+        id_estudiante: pred.id_estudiante,
+        nombres: estudiante?.nombres || '',
+        apellidos: estudiante?.apellidos || '',
+        fecha_prediccion: pred.fecha_prediccion,
+        nivel_riesgo: pred.nivel_riesgo,
+        factores_clave: pred.factores_clave,
+        estado_prediccion: pred.estado_prediccion,
+      });
+    }
+    
+    return result;
   }
 
   async findByEstudiante(id_estudiante: string): Promise<PrediccionRiesgo[]> {
-    return this.prediccionesRepository.find({
-      where: { id_estudiante },
-      order: { fecha_prediccion: 'DESC' },
-    });
+    return this.prediccionesModel
+      .find({ id_estudiante })
+      .sort({ fecha_prediccion: -1 })
+      .exec();
   }
 
-  async findOne(id: string): Promise<PrediccionRiesgo> {
-    const prediccion = await this.prediccionesRepository.findOne({
-      where: { id_prediccion: id },
-      relations: ['estudiante'],
-    });
+  async findOne(id: string): Promise<any> {
+    const prediccion = await this.prediccionesModel
+      .findById(id)
+      .exec();
 
     if (!prediccion) {
       throw new NotFoundException(`Predicción ${id} no encontrada`);
     }
 
-    return prediccion;
+    const estudiante = await this.estudiantesModel.findOne({ id_estudiante: prediccion.id_estudiante }).exec();
+
+    return {
+      ...prediccion.toObject(),
+      estudiante,
+    };
   }
 
   async crear(id_estudiante: string, data?: any): Promise<any> {
     // Verificar que el estudiante existe
-    const estudiante = await this.estudiantesRepository.findOne({
-      where: { id_estudiante },
-    });
+    const estudiante = await this.estudiantesModel
+      .findOne({ id_estudiante })
+      .exec();
 
     if (!estudiante) {
       throw new NotFoundException(`Estudiante ${id_estudiante} no encontrado`);
     }
 
-    // Generar predicción (aquí puedes agregar lógica más compleja)
-    const prediccion = this.prediccionesRepository.create({
-      id_prediccion: uuidv4(),
-      id_estudiante,
-      nivel_riesgo: data?.nivel_riesgo || this.calcularNivelRiesgo(data),
-      factores_clave: data?.factores_clave || this.generarFactoresClave(data),
-      estado_prediccion: 'Completado',
-    });
+    try {
+      // Llamar al microservicio de predicción de IA
+      const estudianteInput = {
+        id_estudiante: estudiante.id_estudiante,
+        nombres: estudiante.nombres,
+        apellidos: estudiante.apellidos,
+        semestre_actual: data?.semestre_actual || 1,
+        notas_promedio: data?.notas_promedio || 0,
+        notas_examenes_promedio: data?.notas_examenes_promedio || 0,
+        entregas_tareas_porcentaje: data?.entregas_tareas_porcentaje || 0,
+        asistencia_porcentaje: data?.asistencia_porcentaje || 0,
+        horas_estudio_semana: data?.horas_estudio_semana || 0,
+        participacion_clase: data?.participacion_clase || 'media',
+        usa_tecnicas_estudio: data?.usa_tecnicas_estudio || false,
+      };
 
-    const prediccionGuardada = await this.prediccionesRepository.save(prediccion);
+      const response = await axios.post(`${this.predictorUrl}/predict`, estudianteInput, {
+        timeout: 5000,
+        headers: { 'Content-Type': 'application/json' }
+      });
 
-    // Devolver predicción con datos del estudiante para uso inmediato
-    return {
-      id_prediccion: prediccionGuardada.id_prediccion,
-      id_estudiante: prediccionGuardada.id_estudiante,
-      nombres: estudiante.nombres,
-      apellidos: estudiante.apellidos,
-      fecha_prediccion: prediccionGuardada.fecha_prediccion,
-      nivel_riesgo: prediccionGuardada.nivel_riesgo,
-      factores_clave: prediccionGuardada.factores_clave,
-      estado_prediccion: prediccionGuardada.estado_prediccion,
-    };
+      const prediccionIA = response.data;
+
+      // Guardar la predicción en la base de datos
+      const prediccion = new this.prediccionesModel({
+        id_estudiante,
+        nivel_riesgo: prediccionIA.riesgo.charAt(0).toUpperCase() + prediccionIA.riesgo.slice(1),
+        factores_clave: prediccionIA.factores_criticos.join(', '),
+        estado_prediccion: 'Completado',
+      });
+
+      const prediccionGuardada = await prediccion.save();
+
+      // Crear notificación para el estudiante
+      try {
+        const factoresClave = prediccionIA.factores_criticos || [];
+        await this.notificacionesService.notificarPrediccionRiesgo(
+          estudiante._id.toString(),
+          prediccionGuardada.nivel_riesgo,
+          factoresClave,
+          prediccionGuardada._id.toString()
+        );
+      } catch (notifError) {
+        console.error('Error al crear notificación de predicción:', notifError);
+      }
+
+      // Devolver predicción completa con datos del estudiante y de la IA
+      return {
+        id_prediccion: prediccionGuardada._id,
+        id_estudiante: prediccionGuardada.id_estudiante,
+        nombres: estudiante.nombres,
+        apellidos: estudiante.apellidos,
+        fecha_prediccion: prediccionGuardada.fecha_prediccion,
+        nivel_riesgo: prediccionGuardada.nivel_riesgo,
+        factores_clave: prediccionGuardada.factores_clave,
+        estado_prediccion: prediccionGuardada.estado_prediccion,
+        // Datos adicionales de la IA
+        probabilidad: prediccionIA.probabilidad,
+        puntuacion: prediccionIA.puntuacion,
+        recomendaciones: prediccionIA.recomendaciones,
+        modelo_version: prediccionIA.modelo_version,
+      };
+    } catch (error) {
+      console.error('Error al llamar al microservicio de predicción:', error.message);
+      
+      // Si el microservicio no está disponible, usar lógica de fallback
+      const prediccion = new this.prediccionesModel({
+        id_estudiante,
+        nivel_riesgo: data?.nivel_riesgo || this.calcularNivelRiesgo(data),
+        factores_clave: data?.factores_clave || this.generarFactoresClave(data),
+        estado_prediccion: 'Completado (Fallback)',
+      });
+
+      const prediccionGuardada = await prediccion.save();
+
+      // Crear notificación para el estudiante (fallback)
+      try {
+        const factoresClave = prediccionGuardada.factores_clave ? prediccionGuardada.factores_clave.split(', ') : [];
+        await this.notificacionesService.notificarPrediccionRiesgo(
+          estudiante._id.toString(),
+          prediccionGuardada.nivel_riesgo,
+          factoresClave,
+          prediccionGuardada._id.toString()
+        );
+      } catch (notifError) {
+        console.error('Error al crear notificación de predicción:', notifError);
+      }
+
+      return {
+        id_prediccion: prediccionGuardada._id,
+        id_estudiante: prediccionGuardada.id_estudiante,
+        nombres: estudiante.nombres,
+        apellidos: estudiante.apellidos,
+        fecha_prediccion: prediccionGuardada.fecha_prediccion,
+        nivel_riesgo: prediccionGuardada.nivel_riesgo,
+        factores_clave: prediccionGuardada.factores_clave,
+        estado_prediccion: prediccionGuardada.estado_prediccion,
+        advertencia: 'Predicción generada con lógica de respaldo (microservicio IA no disponible)',
+      };
+    }
   }
 
   private calcularNivelRiesgo(data: any): string {

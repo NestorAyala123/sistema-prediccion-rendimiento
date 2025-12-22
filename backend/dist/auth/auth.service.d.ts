@@ -1,13 +1,15 @@
 import { JwtService } from '@nestjs/jwt';
-import { Repository } from 'typeorm';
-import { Usuario } from '../entities/usuario.entity';
+import { Model } from 'mongoose';
+import { Usuario } from '../schemas/usuario.schema';
+import { Estudiante } from '../schemas/estudiante.schema';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 export declare class AuthService {
-    private usuariosRepository;
+    private usuarioModel;
+    private estudianteModel;
     private jwtService;
-    constructor(usuariosRepository: Repository<Usuario>, jwtService: JwtService);
+    constructor(usuarioModel: Model<Usuario>, estudianteModel: Model<Estudiante>, jwtService: JwtService);
     register(registerDto: RegisterDto): Promise<{
         access_token: string;
         user: {
@@ -15,7 +17,7 @@ export declare class AuthService {
             email: string;
             nombres: string;
             apellidos: string;
-            rol: string;
+            role: string;
         };
     }>;
     updateProfile(userId: string, dto: UpdateProfileDto): Promise<{
@@ -24,7 +26,7 @@ export declare class AuthService {
             email: string;
             nombres: string;
             apellidos: string;
-            rol: string;
+            role: string;
         };
     }>;
     login(loginDto: LoginDto): Promise<{
@@ -34,8 +36,12 @@ export declare class AuthService {
             email: string;
             nombres: string;
             apellidos: string;
-            rol: string;
+            role: string;
         };
     }>;
-    validateUser(id: string): Promise<Usuario>;
+    validateUser(id: string): Promise<import("mongoose").Document<unknown, {}, Usuario, {}, {}> & Usuario & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }>;
 }

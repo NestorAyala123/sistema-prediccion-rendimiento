@@ -14,6 +14,7 @@ import {
   AcademicCapIcon
 } from '@heroicons/react/24/outline';
 import ProfileModal from './ProfileModal';
+import NotificationDropdown from './NotificationDropdown';
 
 interface SearchSuggestion {
   id: string;
@@ -326,6 +327,9 @@ const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
           </div>
 
           <div className="flex items-center space-x-3">
+            {/* Notificaciones - Solo para estudiantes */}
+            <NotificationDropdown />
+            
             <div className="flex items-center space-x-2">
               {/* Language selector */}
               <>

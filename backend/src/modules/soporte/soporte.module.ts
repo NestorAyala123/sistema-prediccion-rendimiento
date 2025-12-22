@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Soporte } from '../../entities/soporte.entity';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Soporte, SoporteSchema } from '../../schemas/soporte.schema';
 import { SoporteService } from './soporte.service';
 import { SoporteController } from './soporte.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Soporte])],
+  imports: [MongooseModule.forFeature([{ name: Soporte.name, schema: SoporteSchema }])],
   providers: [SoporteService],
   controllers: [SoporteController],
   exports: [SoporteService],

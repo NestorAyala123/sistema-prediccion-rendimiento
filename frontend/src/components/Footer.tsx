@@ -1,24 +1,26 @@
 import React from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const Footer: React.FC = () => {
+  const { t } = useLanguage();
   return (
     <footer className="bg-white border-t mt-8">
       <div className="container mx-auto px-4 py-4 text-sm text-gray-600 flex justify-between">
-        <div>Universidad · Información institucional</div>
+        <div>{t('footer.info')}</div>
         <div className="space-x-4">
           <button
-            onClick={() => window.alert('Contacto de soporte')}
+            onClick={() => window.alert(t('footer.soporte'))}
             className="text-blue-600 hover:underline"
-            aria-label="Soporte"
+            aria-label={t('footer.soporte')}
           >
-            Soporte
+            {t('footer.soporte')}
           </button>
           <button
-            onClick={() => window.alert('Mostrar políticas')}
+            onClick={() => window.alert(t('footer.politicas'))}
             className="text-blue-600 hover:underline"
-            aria-label="Políticas"
+            aria-label={t('footer.politicas')}
           >
-            Políticas
+            {t('footer.politicas')}
           </button>
         </div>
       </div>

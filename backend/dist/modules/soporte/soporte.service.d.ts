@@ -1,9 +1,9 @@
-import { Repository } from 'typeorm';
-import { Soporte } from '../../entities/soporte.entity';
+import { Model } from 'mongoose';
+import { Soporte, SoporteDocument } from '../../schemas/soporte.schema';
 import { CreateSoporteDto } from './dto/create-soporte.dto';
 export declare class SoporteService {
-    private readonly soporteRepo;
-    constructor(soporteRepo: Repository<Soporte>);
+    private readonly soporteModel;
+    constructor(soporteModel: Model<SoporteDocument>);
     create(dto: CreateSoporteDto): Promise<Soporte>;
     findAll(): Promise<Soporte[]>;
 }

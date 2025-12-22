@@ -12,7 +12,7 @@ export declare class AuthController {
             email: string;
             nombres: string;
             apellidos: string;
-            rol: string;
+            role: string;
         };
     }>;
     login(loginDto: LoginDto): Promise<{
@@ -22,7 +22,7 @@ export declare class AuthController {
             email: string;
             nombres: string;
             apellidos: string;
-            rol: string;
+            role: string;
         };
     }>;
     getProfile(req: any): any;
@@ -32,7 +32,7 @@ export declare class AuthController {
             email: string;
             nombres: string;
             apellidos: string;
-            rol: string;
+            role: string;
         };
     }>;
 }
