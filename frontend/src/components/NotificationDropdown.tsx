@@ -67,6 +67,11 @@ const NotificationDropdown: React.FC = () => {
     };
   }, [isOpen]);
 
+  // Cargar notificaciones al montar y cada 30 segundos
+  useEffect(() => {
+    cargarNotificaciones();
+    const interval = setInterval(cargarNotificaciones, 30000);
+    return () => clearInterval(interval);
   }, [user]);
 
   const unreadCount = notifications.filter(n => !n.leida).length;
@@ -100,17 +105,6 @@ const NotificationDropdown: React.FC = () => {
     } catch (error) {
       console.error('Error al eliminar notificación:', error);
     }
-    setNotifications(notifications.map(n => 
-      n.id === id ? { ...n, leida: true } : n
-    ));
-  };
-
-  const handleMarkAllAsRead = () => {
-    setNotifications(notifications.map(n => ({ ...n, leida: true })));
-  };
-
-  const handleDeleteNotification = (id: string) => {
-    setNotifications(notifications.filter(n => n.id !== id));
   };
 
   const getNotificationIcon = (tipo: Notification['tipo']) => {

@@ -50,9 +50,9 @@ const EstudianteDashboard: React.FC = () => {
   }, []);
 
   const getNivelRiesgo = (promedio: number) => {
-    if (promedio >= 80) return { nivel: 'Bajo', color: 'text-green-600', bg: 'bg-green-100' };
-    if (promedio >= 60) return { nivel: 'Medio', color: 'text-yellow-600', bg: 'bg-yellow-100' };
-    return { nivel: 'Alto', color: 'text-red-600', bg: 'bg-red-100' };
+    if (promedio >= 80) return { nivel: t('estudiante.riesgoBajo'), color: 'text-green-600', bg: 'bg-green-100' };
+    if (promedio >= 60) return { nivel: t('estudiante.riesgoMedio'), color: 'text-yellow-600', bg: 'bg-yellow-100' };
+    return { nivel: t('estudiante.riesgoAlto'), color: 'text-red-600', bg: 'bg-red-100' };
   };
 
   const riesgo = getNivelRiesgo(promedioGeneral);
@@ -67,10 +67,10 @@ const EstudianteDashboard: React.FC = () => {
               <AcademicCapIcon className="w-8 h-8 text-blue-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
-                  Portal Estudiante
+                  {t('estudiante.portalTitle')}
                 </h1>
                 <p className="text-sm text-gray-500">
-                  Bienvenido, {user?.nombres} {user?.apellidos}
+                  {t('estudiante.bienvenido')}, {user?.nombres} {user?.apellidos}
                 </p>
               </div>
             </div>
@@ -79,7 +79,7 @@ const EstudianteDashboard: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
             >
               <ArrowRightOnRectangleIcon className="w-5 h-5" />
-              <span>Cerrar sesión</span>
+              <span>{t('estudiante.cerrarSesion')}</span>
             </button>
           </div>
         </div>
@@ -92,7 +92,7 @@ const EstudianteDashboard: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Promedio General</p>
+                <p className="text-sm font-medium text-gray-600">{t('estudiante.promedioGeneral')}</p>
                 <p className="text-3xl font-bold text-blue-600 mt-2">{promedioGeneral}</p>
               </div>
               <ChartBarIcon className="w-12 h-12 text-blue-500 opacity-50" />
@@ -102,7 +102,7 @@ const EstudianteDashboard: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Nivel de Riesgo</p>
+                <p className="text-sm font-medium text-gray-600">{t('estudiante.nivelRiesgo')}</p>
                 <p className={`text-2xl font-bold mt-2 ${riesgo.color}`}>{riesgo.nivel}</p>
               </div>
               <div className={`w-12 h-12 rounded-full ${riesgo.bg} flex items-center justify-center`}>
@@ -114,7 +114,7 @@ const EstudianteDashboard: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Materias</p>
+                <p className="text-sm font-medium text-gray-600">{t('estudiante.materias')}</p>
                 <p className="text-3xl font-bold text-purple-600 mt-2">{calificaciones.length}</p>
               </div>
               <BookOpenIcon className="w-12 h-12 text-purple-500 opacity-50" />
@@ -124,7 +124,7 @@ const EstudianteDashboard: React.FC = () => {
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Asistencia Promedio</p>
+                <p className="text-sm font-medium text-gray-600">{t('estudiante.asistenciaPromedio')}</p>
                 <p className="text-3xl font-bold text-green-600 mt-2">
                   {Math.round(asistencias.reduce((acc, a) => acc + a.porcentaje, 0) / asistencias.length)}%
                 </p>
@@ -139,14 +139,14 @@ const EstudianteDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <ChartBarIcon className="w-6 h-6 text-blue-600" />
-              Mis Calificaciones
+              {t('estudiante.misCalificaciones')}
             </h2>
             <div className="space-y-4">
               {calificaciones.map((cal, idx) => (
                 <div key={idx} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                   <div>
                     <p className="font-medium text-gray-900">{cal.materia}</p>
-                    <p className="text-sm text-gray-500">Semestre {cal.semestre}</p>
+                    <p className="text-sm text-gray-500">{t('estudiante.semestre')} {cal.semestre}</p>
                   </div>
                   <div className="text-right">
                     <p className={`text-2xl font-bold ${cal.nota >= 80 ? 'text-green-600' : cal.nota >= 60 ? 'text-yellow-600' : 'text-red-600'}`}>
@@ -163,7 +163,7 @@ const EstudianteDashboard: React.FC = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
               <ClipboardDocumentListIcon className="w-6 h-6 text-purple-600" />
-              Mi Asistencia
+              {t('estudiante.miAsistencia')}
             </h2>
             <div className="space-y-4">
               {asistencias.map((asist, idx) => (
@@ -188,12 +188,12 @@ const EstudianteDashboard: React.FC = () => {
 
         {/* Recomendaciones */}
         <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold text-blue-900 mb-3">💡 Recomendaciones Personalizadas</h3>
+          <h3 className="text-lg font-bold text-blue-900 mb-3">💡 {t('estudiante.recomendacionesPersonalizadas')}</h3>
           <ul className="space-y-2 text-blue-800">
-            <li>• Mantén un buen rendimiento en Programación</li>
-            <li>• Refuerza tus conocimientos en Física</li>
-            <li>• Mejora tu asistencia en Física</li>
-            <li>• Continúa con tu excelente asistencia general</li>
+            <li>• {t('estudiante.recomendacion1')}</li>
+            <li>• {t('estudiante.recomendacion2')}</li>
+            <li>• {t('estudiante.recomendacion3')}</li>
+            <li>• {t('estudiante.recomendacion4')}</li>
           </ul>
         </div>
       </main>

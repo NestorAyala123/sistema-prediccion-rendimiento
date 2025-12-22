@@ -142,7 +142,7 @@ const Dashboard: React.FC = () => {
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Riesgo Alto</p>
+              <p className="text-sm font-medium text-gray-600">{t('dashboard.riesgoAlto')}</p>
               <p className="text-2xl font-semibold text-red-600">
                 {stats.riesgoAlto}
               </p>
@@ -154,23 +154,23 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Distribución de Riesgo
+            {t('dashboard.distribucionRiesgo')}
           </h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Riesgo Bajo</span>
+              <span className="text-sm text-gray-600">{t('dashboard.riesgoBajo')}</span>
               <span className="text-sm font-medium text-green-600">
                 {stats.riesgoBajo}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Riesgo Medio</span>
+              <span className="text-sm text-gray-600">{t('dashboard.riesgoMedio')}</span>
               <span className="text-sm font-medium text-yellow-600">
                 {stats.riesgoMedio}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Riesgo Alto</span>
+              <span className="text-sm text-gray-600">{t('dashboard.riesgoAlto')}</span>
               <span className="text-sm font-medium text-red-600">
                 {stats.riesgoAlto}
               </span>
@@ -180,7 +180,7 @@ const Dashboard: React.FC = () => {
 
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Acciones Rápidas
+            {t('dashboard.accionesRapidas')}
           </h3>
           <div className="space-y-3">
             <button
