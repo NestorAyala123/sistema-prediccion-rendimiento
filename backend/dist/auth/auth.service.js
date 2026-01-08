@@ -97,28 +97,47 @@ let AuthService = class AuthService {
     }
     async updateProfile(userId, dto) {
         const usuario = await this.usuarioModel.findById(userId).exec();
-        if (!usuario) {
+        if (usuario) {
+            if (dto.nombres)
+                usuario.nombres = dto.nombres;
+            if (dto.apellidos)
+                usuario.apellidos = dto.apellidos;
+            await usuario.save();
+            return {
+                user: {
+                    id: usuario._id.toString(),
+                    email: usuario.email,
+                    nombres: usuario.nombres,
+                    apellidos: usuario.apellidos,
+                    role: usuario.rol,
+                },
+            };
+        }
+        const estudiante = await this.estudianteModel.findById(userId).exec();
+        if (!estudiante) {
             throw new common_1.UnauthorizedException('Usuario no encontrado');
         }
-        if (dto.email && dto.email !== usuario.email) {
-            const exists = await this.usuarioModel.findOne({ email: dto.email }).exec();
-            if (exists) {
-                throw new common_1.ConflictException('El email ya está registrado');
-            }
-            usuario.email = dto.email;
-        }
         if (dto.nombres)
-            usuario.nombres = dto.nombres;
+            estudiante.nombres = dto.nombres;
         if (dto.apellidos)
-            usuario.apellidos = dto.apellidos;
-        await usuario.save();
+            estudiante.apellidos = dto.apellidos;
+        if (dto.telefono !== undefined)
+            estudiante.telefono = dto.telefono;
+        if (dto.direccion !== undefined)
+            estudiante.direccion = dto.direccion;
+        if (dto.fecha_nacimiento)
+            estudiante.fecha_nacimiento = new Date(dto.fecha_nacimiento);
+        await estudiante.save();
         return {
             user: {
-                id: usuario._id.toString(),
-                email: usuario.email,
-                nombres: usuario.nombres,
-                apellidos: usuario.apellidos,
-                role: usuario.rol,
+                id: estudiante._id.toString(),
+                email: estudiante.email,
+                nombres: estudiante.nombres,
+                apellidos: estudiante.apellidos,
+                telefono: estudiante.telefono,
+                direccion: estudiante.direccion,
+                fecha_nacimiento: estudiante.fecha_nacimiento,
+                role: 'estudiante',
             },
         };
     }

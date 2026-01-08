@@ -23,14 +23,23 @@ api.interceptors.request.use(
 );
 
 export interface Estudiante {
+  _id: string;
   id_estudiante: string;
   nombres: string;
   apellidos: string;
   email: string;
+  password?: string;
+  telefono?: string;
+  direccion?: string;
+  fecha_nacimiento?: Date;
   semestre_actual?: number;
+  carrera?: string;
+  promedio_general?: number;
+  activo?: boolean;
+  fecha_ingreso?: Date;
   id_usuario?: string;
-  created_at?: Date;
-  updated_at?: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface CreateEstudianteDto {
@@ -232,6 +241,34 @@ export const calificacionesService = {
 
   async getPromedioEstudiantePeriodo(id_estudiante: string, periodo: string): Promise<{ promedio: number }> {
     const response = await api.get(`/calificaciones/promedio/estudiante/${id_estudiante}/periodo/${periodo}`);
+    return response.data;
+  },
+};
+
+// Servicio de Asistencias
+export const asistenciasService = {
+  async getAll(): Promise<any[]> {
+    const response = await api.get('/asistencias');
+    return response.data;
+  },
+
+  async getByEstudiante(id_estudiante: string): Promise<any[]> {
+    const response = await api.get(`/asistencias/estudiante/${id_estudiante}`);
+    return response.data;
+  },
+
+  async getByFecha(fecha: string): Promise<any[]> {
+    const response = await api.get(`/asistencias/fecha/${fecha}`);
+    return response.data;
+  },
+
+  async createLote(data: {
+    id_asignatura: string;
+    fecha_clase: string;
+    periodo_academico: string;
+    asistencias: Array<{ id_estudiante: string; estado: string }>;
+  }): Promise<any> {
+    const response = await api.post('/asistencias/lote', data);
     return response.data;
   },
 };

@@ -7,6 +7,7 @@ import { Estudiante, EstudianteDocument } from '../../schemas/estudiante.schema'
 import { Asignatura, AsignaturaDocument } from '../../schemas/asignatura.schema';
 import { CreateCalificacionDto, CreateCalificacionPorPeriodoDto, UpdateCalificacionDto } from './dto/calificacion.dto';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { EventsGateway } from '../../events/events.gateway';
 
 @Injectable()
 export class CalificacionesService {
@@ -20,6 +21,7 @@ export class CalificacionesService {
     @InjectModel(Asignatura.name)
     private asignaturasModel: Model<AsignaturaDocument>,
     private notificacionesService: NotificacionesService,
+    private eventsGateway: EventsGateway,
   ) {}
 
   // Crear calificación por inscripción directa
@@ -60,6 +62,17 @@ export class CalificacionesService {
         console.error('Error al crear notificación:', error);
       }
     }
+
+    // 🔴 Emitir evento en tiempo real
+    this.eventsGateway.emitCalificacionCreada({
+      id: savedCalificacion._id.toString(),
+      id_estudiante: inscripcion.id_estudiante,
+      id_asignatura: inscripcion.id_asignatura,
+      tipo_evaluacion: createCalificacionDto.tipo_evaluacion,
+      nota: createCalificacionDto.nota,
+      asignatura_nombre: asignatura?.nombre_asignatura || '',
+      estudiante_nombre: estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : '',
+    });
 
     return savedCalificacion;
   }
@@ -114,6 +127,18 @@ export class CalificacionesService {
         console.error('Error al crear notificación:', error);
       }
     }
+
+    // 🔴 Emitir evento en tiempo real
+    this.eventsGateway.emitCalificacionCreada({
+      id: savedCalificacion._id.toString(),
+      id_estudiante: dto.id_estudiante,
+      id_asignatura: dto.id_asignatura,
+      tipo_evaluacion: dto.tipo_evaluacion,
+      nota: dto.nota,
+      periodo_academico: dto.periodo_academico,
+      asignatura_nombre: asignatura?.nombre_asignatura || '',
+      estudiante_nombre: estudiante ? `${estudiante.nombres} ${estudiante.apellidos}` : '',
+    });
 
     return savedCalificacion;
   }

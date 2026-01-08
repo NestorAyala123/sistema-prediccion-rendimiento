@@ -13,6 +13,7 @@ import { InscripcionesModule } from './modules/inscripciones/inscripciones.modul
 import { AsistenciasModule } from './modules/asistencias/asistencias.module';
 import { AuditoriaModule } from './modules/auditoria/auditoria.module';
 import { NotificacionesModule } from './modules/notificaciones/notificaciones.module';
+import { EventsModule } from './events/events.module';
 import { Usuario, UsuarioSchema } from './schemas/usuario.schema';
 import { Estudiante, EstudianteSchema } from './schemas/estudiante.schema';
 import { Asignatura, AsignaturaSchema } from './schemas/asignatura.schema';
@@ -48,6 +49,9 @@ import { PrediccionRiesgo, PrediccionRiesgoSchema } from './schemas/prediccion-r
     AsistenciasModule,
     PrediccionesModule,
     SoporteModule,
+    AuditoriaModule,
+    NotificacionesModule,
+    EventsModule,
     AuditoriaModule,
     NotificacionesModule,
   ],

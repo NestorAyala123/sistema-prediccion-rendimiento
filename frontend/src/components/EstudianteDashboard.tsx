@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useRealTimeEvent } from '../contexts/RealTimeContext';
 import {
   AcademicCapIcon,
   BookOpenIcon,
@@ -27,6 +28,23 @@ const EstudianteDashboard: React.FC = () => {
   const [calificaciones, setCalificaciones] = useState<Calificacion[]>([]);
   const [asistencias, setAsistencias] = useState<Asistencia[]>([]);
   const [promedioGeneral, setPromedioGeneral] = useState(0);
+
+  // 🔴 Escuchar eventos en tiempo real para actualizar calificaciones
+  useRealTimeEvent('calificacion:created', (data) => {
+    // Verificar si la calificación es para este estudiante
+    if (data.id_estudiante === (user as any)?._id || data.id_estudiante === (user as any)?.id_estudiante) {
+      console.log('📝 Nueva calificación recibida para ti:', data);
+      // Aquí podrías recargar las calificaciones o actualizar el estado
+      // Por ahora mostramos una alerta visual
+      alert(`¡Nueva calificación en ${data.asignatura_nombre}: ${data.nota}`);
+    }
+  });
+
+  useRealTimeEvent('asistencia:created', (data) => {
+    if (data.id_estudiante === (user as any)?._id || data.id_estudiante === (user as any)?.id_estudiante) {
+      console.log('✔️ Asistencia actualizada para ti:', data);
+    }
+  });
 
   useEffect(() => {
     // Simulación de datos - aquí conectarás con tu API

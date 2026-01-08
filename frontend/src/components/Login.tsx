@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getDashboardPath } from '../utils/roleUtils';
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +13,11 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Redirigir al dashboard correspondiente según el rol
+  const redirectByRole = (role: string) => {
+    navigate(getDashboardPath(role));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,21 +51,7 @@ const Login: React.FC = () => {
       login(data.user, data.access_token);
 
       // Redirigir según el rol del usuario
-      const userRole = data.user.role || 'estudiante';
-      switch (userRole) {
-        case 'administrador':
-        case 'admin':
-          navigate('/admin/dashboard');
-          break;
-        case 'docente':
-          navigate('/docente/dashboard');
-          break;
-        case 'estudiante':
-          navigate('/estudiante/dashboard');
-          break;
-        default:
-          navigate('/');
-      }
+      redirectByRole(data.user.role || data.user.rol || 'estudiante');
     } catch (err: any) {
       // Por ahora, permitir login de demostración sin backend
       console.warn('Backend de autenticación no disponible, usando demo mode');
@@ -67,8 +59,8 @@ const Login: React.FC = () => {
       // Determinar rol basado en el email
       let role = 'estudiante';
       if (email.includes('@admin.')) {
-        role = 'administrador';
-      } else if (email.includes('@docente.')) {
+        role = 'admin';
+      } else if (email.includes('@docente.') || email.includes('@profesor.')) {
         role = 'docente';
       }
 
@@ -78,24 +70,11 @@ const Login: React.FC = () => {
         nombres: email.split('@')[0],
         apellidos: 'Usuario',
         role: role,
-        rol: role,
       };
       login(demoUser, 'demo-token');
 
       // Redirigir según el rol
-      switch (role) {
-        case 'administrador':
-          navigate('/admin/dashboard');
-          break;
-        case 'docente':
-          navigate('/docente/dashboard');
-          break;
-        case 'estudiante':
-          navigate('/estudiante/dashboard');
-          break;
-        default:
-          navigate('/');
-      }
+      redirectByRole(role);
     } finally {
       setLoading(false);
     }

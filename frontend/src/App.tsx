@@ -21,17 +21,23 @@ import RoleProtectedRoute from './components/RoleProtectedRoute';
 import EstudianteDashboard from './components/EstudianteDashboard';
 import DocenteDashboard from './components/DocenteDashboard';
 import RegistroCalificaciones from './components/RegistroCalificaciones';
+import AsistenciaRegistro from './components/AsistenciaRegistro';
+import EstudiantesList from './components/EstudiantesList';
+import ToastNotification from './components/ToastNotification';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { SearchProvider } from './contexts/SearchContext';
+import { RealTimeProvider } from './contexts/RealTimeContext';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <LanguageProvider>
-          <SearchProvider>
-            <Routes>
+        <RealTimeProvider>
+          <LanguageProvider>
+            <SearchProvider>
+              <ToastNotification />
+              <Routes>
             {/* Rutas públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -63,6 +69,8 @@ function App() {
                       <Routes>
                         <Route path="/dashboard" element={<DocenteDashboard />} />
                         <Route path="/calificaciones" element={<RegistroCalificaciones />} />
+                        <Route path="/asistencia" element={<AsistenciaRegistro />} />
+                        <Route path="/estudiantes" element={<EstudiantesList />} />
                         <Route path="*" element={<Navigate to="/docente/dashboard" replace />} />
                       </Routes>
                     </Layout>
@@ -107,6 +115,7 @@ function App() {
             </Routes>
           </SearchProvider>
         </LanguageProvider>
+        </RealTimeProvider>
       </AuthProvider>
     </Router>
   );
@@ -116,19 +125,12 @@ function App() {
 const RoleBasedRedirect: React.FC = () => {
   const { useAuth } = require('./contexts/AuthContext');
   const { user } = useAuth();
-  const userRole = user?.role || user?.rol || 'estudiante';
-
-  switch (userRole) {
-    case 'administrador':
-    case 'admin':
-      return <Navigate to="/admin/dashboard" replace />;
-    case 'docente':
-      return <Navigate to="/docente/dashboard" replace />;
-    case 'estudiante':
-      return <Navigate to="/estudiante/dashboard" replace />;
-    default:
-      return <Navigate to="/login" replace />;
-  }
+  const { normalizeRole, getDashboardPath } = require('./utils/roleUtils');
+  
+  const userRole = normalizeRole((user as any)?.role || (user as any)?.rol);
+  const dashboardPath = getDashboardPath(userRole);
+  
+  return <Navigate to={dashboardPath} replace />;
 };
 
 export default App;

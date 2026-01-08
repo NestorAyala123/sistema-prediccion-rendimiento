@@ -21,7 +21,23 @@ export class RolesGuard implements CanActivate {
       throw new ForbiddenException('Usuario no autenticado');
     }
 
-    const hasRole = requiredRoles.some((role) => user.role === role);
+    // Soportar tanto 'role' como 'rol'
+    const userRole = user.role || user.rol || '';
+    
+    // Normalizar roles para comparación (admin, administrador, docente, profesor, estudiante)
+    const normalizeRole = (role: string): string => {
+      const normalized = role.toLowerCase();
+      if (normalized === 'administrador') return 'admin';
+      if (normalized === 'profesor') return 'docente';
+      return normalized;
+    };
+    
+    const normalizedUserRole = normalizeRole(userRole);
+    
+    const hasRole = requiredRoles.some((role) => {
+      const normalizedRequiredRole = normalizeRole(role);
+      return normalizedUserRole === normalizedRequiredRole;
+    });
     
     if (!hasRole) {
       throw new ForbiddenException('No tienes permisos para acceder a este recurso');

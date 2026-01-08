@@ -112,32 +112,54 @@ export class AuthService {
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
+    // Intentar buscar primero en usuarios (admin/docente)
     const usuario = await this.usuarioModel.findById(userId).exec();
-    if (!usuario) {
+    
+    if (usuario) {
+      // Usuario es admin o docente - solo pueden editar nombres, apellidos
+      // NO pueden cambiar email para mantener seguridad
+      if (dto.nombres) usuario.nombres = dto.nombres;
+      if (dto.apellidos) usuario.apellidos = dto.apellidos;
+
+      await usuario.save();
+
+      return {
+        user: {
+          id: usuario._id.toString(),
+          email: usuario.email,
+          nombres: usuario.nombres,
+          apellidos: usuario.apellidos,
+          role: usuario.rol,
+        },
+      };
+    }
+
+    // Si no es usuario, buscar en estudiantes
+    const estudiante = await this.estudianteModel.findById(userId).exec();
+    
+    if (!estudiante) {
       throw new UnauthorizedException('Usuario no encontrado');
     }
 
-    // Si se intenta cambiar email, verificar unicidad
-    if (dto.email && dto.email !== usuario.email) {
-      const exists = await this.usuarioModel.findOne({ email: dto.email }).exec();
-      if (exists) {
-        throw new ConflictException('El email ya está registrado');
-      }
-      usuario.email = dto.email;
-    }
+    // Estudiante puede editar más campos pero NO email, id_estudiante, semestre, carrera, promedio
+    if (dto.nombres) estudiante.nombres = dto.nombres;
+    if (dto.apellidos) estudiante.apellidos = dto.apellidos;
+    if (dto.telefono !== undefined) estudiante.telefono = dto.telefono;
+    if (dto.direccion !== undefined) estudiante.direccion = dto.direccion;
+    if (dto.fecha_nacimiento) estudiante.fecha_nacimiento = new Date(dto.fecha_nacimiento);
 
-    if (dto.nombres) usuario.nombres = dto.nombres;
-    if (dto.apellidos) usuario.apellidos = dto.apellidos;
-
-    await usuario.save();
+    await estudiante.save();
 
     return {
       user: {
-        id: usuario._id.toString(),
-        email: usuario.email,
-        nombres: usuario.nombres,
-        apellidos: usuario.apellidos,
-        role: usuario.rol,
+        id: estudiante._id.toString(),
+        email: estudiante.email,
+        nombres: estudiante.nombres,
+        apellidos: estudiante.apellidos,
+        telefono: estudiante.telefono,
+        direccion: estudiante.direccion,
+        fecha_nacimiento: estudiante.fecha_nacimiento,
+        role: 'estudiante',
       },
     };
   }

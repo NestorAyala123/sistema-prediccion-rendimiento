@@ -6,6 +6,7 @@ import { Inscripcion, InscripcionDocument } from '../../schemas/inscripcion.sche
 import { Estudiante, EstudianteDocument } from '../../schemas/estudiante.schema';
 import { Asignatura, AsignaturaDocument } from '../../schemas/asignatura.schema';
 import { CreateAsistenciaDto, UpdateAsistenciaDto } from './dto/asistencia.dto';
+import { EventsGateway } from '../../events/events.gateway';
 
 @Injectable()
 export class AsistenciasService {
@@ -18,7 +19,73 @@ export class AsistenciasService {
     private estudiantesModel: Model<EstudianteDocument>,
     @InjectModel(Asignatura.name)
     private asignaturasModel: Model<AsignaturaDocument>,
+    private eventsGateway: EventsGateway,
   ) {}
+
+  // Crear asistencias en lote
+  async createLote(data: {
+    id_asignatura: string;
+    fecha_clase: string;
+    periodo_academico: string;
+    asistencias: Array<{ id_estudiante: string; estado: string }>;
+  }): Promise<any> {
+    const fecha = new Date(data.fecha_clase);
+    const resultados = [];
+    const errores = [];
+
+    for (const asist of data.asistencias) {
+      try {
+        // Verificar si ya existe registro
+        const existente = await this.asistenciasModel
+          .findOne({
+            id_estudiante: asist.id_estudiante,
+            id_asignatura: data.id_asignatura,
+            periodo_academico: data.periodo_academico,
+            fecha_clase: fecha,
+          })
+          .exec();
+
+        if (existente) {
+          // Actualizar el registro existente
+          existente.estado = asist.estado;
+          await existente.save();
+          resultados.push({ id_estudiante: asist.id_estudiante, actualizado: true });
+        } else {
+          // Crear nuevo registro
+          const nuevaAsistencia = new this.asistenciasModel({
+            id_estudiante: asist.id_estudiante,
+            id_asignatura: data.id_asignatura,
+            periodo_academico: data.periodo_academico,
+            fecha_clase: fecha,
+            estado: asist.estado,
+          });
+          await nuevaAsistencia.save();
+          resultados.push({ id_estudiante: asist.id_estudiante, creado: true });
+        }
+      } catch (error) {
+        errores.push({ id_estudiante: asist.id_estudiante, error: error.message });
+      }
+    }
+
+    // 🔴 Emitir evento en tiempo real
+    const asignatura = await this.asignaturasModel.findOne({ id_asignatura: data.id_asignatura }).exec();
+    this.eventsGateway.emitAsistenciaLote({
+      id_asignatura: data.id_asignatura,
+      asignatura_nombre: asignatura?.nombre_asignatura || '',
+      fecha_clase: data.fecha_clase,
+      periodo_academico: data.periodo_academico,
+      total: data.asistencias.length,
+      exitosos: resultados.length,
+      fallidos: errores.length,
+    });
+
+    return {
+      exitosos: resultados.length,
+      fallidos: errores.length,
+      resultados,
+      errores,
+    };
+  }
 
   // Crear asistencia
   async create(createAsistenciaDto: CreateAsistenciaDto): Promise<Asistencia> {

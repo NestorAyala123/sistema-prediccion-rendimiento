@@ -17,6 +17,18 @@ export class AsistenciasController {
     return await this.asistenciasService.create(createAsistenciaDto);
   }
 
+  // Registrar asistencias en lote
+  @Post('lote')
+  @Roles('administrador', 'docente')
+  async createLote(@Body() data: {
+    id_asignatura: string;
+    fecha_clase: string;
+    periodo_academico: string;
+    asistencias: Array<{ id_estudiante: string; estado: string }>;
+  }) {
+    return await this.asistenciasService.createLote(data);
+  }
+
   // Obtener todas las asistencias
   @Get()
   @Roles('administrador', 'docente')

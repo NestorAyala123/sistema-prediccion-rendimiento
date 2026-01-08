@@ -2,7 +2,16 @@ import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { HomeIcon, UsersIcon, ChartBarIcon, LifebuoyIcon, XMarkIcon } from '@heroicons/react/24/outline';
+import { normalizeRole, getRolePrefix, getUserRole } from '../utils/roleUtils';
+import { 
+  HomeIcon, 
+  UsersIcon, 
+  ChartBarIcon, 
+  LifebuoyIcon, 
+  XMarkIcon,
+  ClipboardDocumentCheckIcon,
+  AcademicCapIcon
+} from '@heroicons/react/24/outline';
 
 type SidebarProps = {
   mobileOpen?: boolean;
@@ -17,16 +26,12 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, setMobileOpen }) 
   const { t } = useLanguage();
 
   // Determinar el rol y el prefijo de ruta
-  const userRole = user?.role || 'estudiante';
-  const rolePrefix = userRole === 'administrador' || userRole === 'admin' 
-    ? '/admin' 
-    : userRole === 'docente' 
-    ? '/docente' 
-    : '/estudiante';
+  const userRole = getUserRole(user);
+  const rolePrefix = getRolePrefix(userRole);
 
   // Definir items del menú según el rol
   const getMenuItems = () => {
-    if (userRole === 'administrador' || userRole === 'admin') {
+    if (userRole === 'admin') {
       return [
         { to: `${rolePrefix}/dashboard`, label: t('sidebar.panel'), icon: 'home' },
         { to: `${rolePrefix}/estudiantes`, label: t('sidebar.estudiantes'), icon: 'users' },
@@ -36,6 +41,8 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, setMobileOpen }) 
     } else if (userRole === 'docente') {
       return [
         { to: `${rolePrefix}/dashboard`, label: 'Dashboard', icon: 'home' },
+        { to: `${rolePrefix}/asistencia`, label: 'Registrar Asistencia', icon: 'clipboard' },
+        { to: `${rolePrefix}/estudiantes`, label: 'Mis Estudiantes', icon: 'students' },
         { to: `${rolePrefix}/calificaciones`, label: 'Calificaciones', icon: 'chart' },
       ];
     } else {
@@ -145,6 +152,8 @@ const Sidebar: React.FC<SidebarProps> = ({ mobileOpen = false, setMobileOpen }) 
                   {it.icon === 'users' && <UsersIcon className="w-5 h-5 text-gray-500" />}
                   {it.icon === 'chart' && <ChartBarIcon className="w-5 h-5 text-gray-500" />}
                   {it.icon === 'support' && <LifebuoyIcon className="w-5 h-5 text-gray-500" />}
+                  {it.icon === 'clipboard' && <ClipboardDocumentCheckIcon className="w-5 h-5 text-gray-500" />}
+                  {it.icon === 'students' && <AcademicCapIcon className="w-5 h-5 text-gray-500" />}
 
                   {expanded && <span>{it.label}</span>}
                 </Link>

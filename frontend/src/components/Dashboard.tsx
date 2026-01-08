@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { estudiantesService } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useRealTimeEvent } from '../contexts/RealTimeContext';
 
 interface DashboardStats {
   totalEstudiantes: number;
@@ -20,6 +21,22 @@ const Dashboard: React.FC = () => {
   });
   const { t } = useLanguage(); // Added translation hook
   const [loading, setLoading] = useState(true);
+
+  // 🔴 Escuchar eventos en tiempo real
+  useRealTimeEvent('calificacion:created', (data) => {
+    console.log('📝 Nueva calificación (Admin):', data);
+    // Opcionalmente recargar estadísticas
+  });
+
+  useRealTimeEvent('asistencia:lote', (data) => {
+    console.log('📊 Asistencia registrada (Admin):', data);
+  });
+
+  useRealTimeEvent('prediccion:created', (data) => {
+    console.log('🔮 Nueva predicción (Admin):', data);
+    // Actualizar contador de predicciones
+    setStats(prev => ({ ...prev, totalPredicciones: prev.totalPredicciones + 1 }));
+  });
 
   useEffect(() => {
     // Simular carga de datos

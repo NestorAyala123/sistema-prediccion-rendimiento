@@ -27,6 +27,20 @@ export declare class AuthService {
             nombres: string;
             apellidos: string;
             role: string;
+            telefono?: undefined;
+            direccion?: undefined;
+            fecha_nacimiento?: undefined;
+        };
+    } | {
+        user: {
+            id: string;
+            email: string;
+            nombres: string;
+            apellidos: string;
+            telefono: string;
+            direccion: string;
+            fecha_nacimiento: Date;
+            role: string;
         };
     }>;
     login(loginDto: LoginDto): Promise<{

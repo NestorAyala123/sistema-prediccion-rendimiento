@@ -6,6 +6,7 @@ import { Asistencia, AsistenciaSchema } from '../../schemas/asistencia.schema';
 import { Inscripcion, InscripcionSchema } from '../../schemas/inscripcion.schema';
 import { Estudiante, EstudianteSchema } from '../../schemas/estudiante.schema';
 import { Asignatura, AsignaturaSchema } from '../../schemas/asignatura.schema';
+import { EventsModule } from '../../events/events.module';
 
 @Module({
   imports: [
@@ -14,7 +15,8 @@ import { Asignatura, AsignaturaSchema } from '../../schemas/asignatura.schema';
       { name: Inscripcion.name, schema: InscripcionSchema },
       { name: Estudiante.name, schema: EstudianteSchema },
       { name: Asignatura.name, schema: AsignaturaSchema },
-    ])
+    ]),
+    EventsModule,
   ],
   controllers: [AsistenciasController],
   providers: [AsistenciasService],

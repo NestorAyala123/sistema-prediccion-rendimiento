@@ -146,12 +146,18 @@ deactivate
 Abre tu navegador en: http://localhost:3000
 
 ### **2. Iniciar Sesión**
-Usuarios de prueba (seed):
-- **Admin**: admin@universidad.edu / password123
-- **Docente 1**: carlos.rodriguez@universidad.edu / password123
-- **Docente 2**: maria.gonzalez@universidad.edu / password123
 
-**Nota**: Los estudiantes se registran desde su propia interfaz, no tienen acceso al sistema administrativo.
+#### **👥 Usuarios Administrativos (Admin/Docentes):**
+- **Admin**: admin@universidad.edu / Admin2025!
+- **Docente 1**: carlos.rodriguez@universidad.edu / Carlos@2024
+- **Docente 2**: maria.gonzalez@universidad.edu / Maria#Docente
+
+#### **👨‍🎓 Estudiantes de Prueba:**
+- **Juan Pérez**: juan.perez@universidad.edu / password123
+- **Ana García**: ana.garcia@universidad.edu / password123
+- **Luis Martínez**: luis.martinez@universidad.edu / password123
+
+**Nota**: Los estudiantes acceden con sus credenciales a su interfaz correspondiente y pueden ver sus calificaciones, asistencias y predicciones personalizadas.
 
 ### **3. Gestionar Estudiantes**
 - Ver lista de estudiantes (ya hay 3 de ejemplo)
