@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useLanguage } from '../contexts/LanguageContext';
 import { estudiantesService, asignaturasService, asistenciasService } from '../services/api';
 import { ArrowLeftIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
@@ -27,7 +26,6 @@ interface AsistenciaEstudiante {
 
 const AsistenciaRegistro: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useLanguage();
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
   const [asignaturaSeleccionada, setAsignaturaSeleccionada] = useState('');
@@ -36,11 +34,7 @@ const AsistenciaRegistro: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [guardando, setGuardando] = useState(false);
 
-  useEffect(() => {
-    cargarDatos();
-  }, []);
-
-  const cargarDatos = async () => {
+  const cargarDatos = useCallback(async () => {
     try {
       setLoading(true);
       const [estudiantesData, asignaturasData] = await Promise.all([
@@ -62,7 +56,11 @@ const AsistenciaRegistro: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    cargarDatos();
+  }, [cargarDatos]);
 
   const toggleAsistencia = (id_estudiante: string) => {
     setAsistencias(prev =>

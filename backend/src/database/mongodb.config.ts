@@ -1,4 +1,4 @@
-// Configuración de MongoDB para NestJS
+// Configuración MongoDB para NestJS
 export const mongoConfig = {
   // URI de conexión a MongoDB
   // En desarrollo: mongodb://localhost:27017/academic_prediction

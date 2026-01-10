@@ -32,7 +32,6 @@ export class EstudiantesController {
   @Post()
   async create(@Body() createEstudianteDto: CreateEstudianteDto) {
     try {
-      console.log('Datos recibidos:', createEstudianteDto);
       return await this.estudiantesService.create(createEstudianteDto);
     } catch (error) {
       console.error('Error al crear estudiante:', error);

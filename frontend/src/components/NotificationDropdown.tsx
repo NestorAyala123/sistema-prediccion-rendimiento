@@ -2,54 +2,21 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BellIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { BellIcon as BellSolidIcon } from '@heroicons/react/24/solid';
 import { useAuth } from '../contexts/AuthContext';
-import { useLanguage } from '../contexts/LanguageContext';
-import api from '../services/api';
-
-interface Notification {
-  id: string;
-  tipo: 'calificacion' | 'asistencia' | 'prediccion' | 'aviso' | 'tarea';
-  titulo: string;
-  mensaje: string;
-  fecha: Date;
-  leida: boolean;
-  prioridad: 'alta' | 'media' | 'baja';
-}
+import { useNavigate } from 'react-router-dom';
+import { useNotifications } from '../contexts/NotificationContext';
 
 const NotificationDropdown: React.FC = () => {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const navigate = useNavigate();
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+  } = useNotifications();
   const [isOpen, setIsOpen] = useState(false);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Cargar notificaciones desde el backend
-  const cargarNotificaciones = async () => {
-    if (!user?.id) return;
-
-    try {
-      setLoading(true);
-      const response = await api.get(`/notificaciones/estudiante/${user.id}`);
-      
-      // Mapear las notificaciones del backend al formato del frontend
-      const notificacionesMapeadas = response.data.map((n: any) => ({
-        id: n._id,
-        tipo: n.tipo,
-        titulo: n.titulo,
-        mensaje: n.mensaje,
-        fecha: new Date(n.createdAt),
-        leida: n.leida,
-        prioridad: n.prioridad,
-      }));
-
-      setNotifications(notificacionesMapeadas);
-    } catch (error) {
-      console.error('Error al cargar notificaciones:', error);
-      // Mantener las notificaciones actuales si hay error
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Cerrar dropdown al hacer clic fuera
   useEffect(() => {
@@ -67,54 +34,32 @@ const NotificationDropdown: React.FC = () => {
     };
   }, [isOpen]);
 
-  // Cargar notificaciones al montar y cada 30 segundos
-  useEffect(() => {
-    cargarNotificaciones();
-    const interval = setInterval(cargarNotificaciones, 30000);
-    return () => clearInterval(interval);
-  }, [user]);
-
-  const unreadCount = notifications.filter(n => !n.leida).length;
-
-  const handleMarkAsRead = async (id: string) => {
-    try {
-      await api.patch(`/notificaciones/${id}/leer`);
-      setNotifications(notifications.map(n => 
-        n.id === id ? { ...n, leida: true } : n
-      ));
-    } catch (error) {
-      console.error('Error al marcar notificación como leída:', error);
+  const handleNotificationClick = (notification: any) => {
+    // Marcar como leída
+    if (!notification.leida) {
+      markAsRead(notification.id);
     }
-  };
-
-  const handleMarkAllAsRead = async () => {
-    if (!user?.id) return;
     
-    try {
-      await api.patch(`/notificaciones/estudiante/${user.id}/leer-todas`);
-      setNotifications(notifications.map(n => ({ ...n, leida: true })));
-    } catch (error) {
-      console.error('Error al marcar todas como leídas:', error);
+    // Si es una predicción, navegar a una vista detallada
+    if (notification.tipo === 'prediccion' && notification.datos) {
+      navigate('/estudiante/prediccion', { state: { prediccion: notification.datos } });
+      setIsOpen(false);
     }
   };
 
-  const handleDeleteNotification = async (id: string) => {
-    try {
-      await api.delete(`/notificaciones/${id}`);
-      setNotifications(notifications.filter(n => n.id !== id));
-    } catch (error) {
-      console.error('Error al eliminar notificación:', error);
-    }
+  const handleDeleteNotification = (id: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    deleteNotification(id);
   };
 
-  const getNotificationIcon = (tipo: Notification['tipo']) => {
+  const getNotificationIcon = (tipo: string) => {
     switch (tipo) {
       case 'calificacion':
         return '📊';
       case 'asistencia':
         return '✅';
       case 'prediccion':
-        return '⚠️';
+        return '🔮';
       case 'aviso':
         return '📢';
       case 'tarea':
@@ -124,7 +69,7 @@ const NotificationDropdown: React.FC = () => {
     }
   };
 
-  const getPriorityColor = (prioridad: Notification['prioridad']) => {
+  const getPriorityColor = (prioridad: string) => {
     switch (prioridad) {
       case 'alta':
         return 'border-red-500 bg-red-50';
@@ -187,7 +132,7 @@ const NotificationDropdown: React.FC = () => {
             </div>
             {notifications.length > 0 && unreadCount > 0 && (
               <button
-                onClick={handleMarkAllAsRead}
+                onClick={markAllAsRead}
                 className="text-xs text-blue-600 hover:text-blue-800 font-medium"
               >
                 Marcar todas como leídas
@@ -207,7 +152,8 @@ const NotificationDropdown: React.FC = () => {
                 {notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 hover:bg-gray-50 transition-colors ${
+                    onClick={() => handleNotificationClick(notification)}
+                    className={`p-4 hover:bg-gray-50 transition-colors cursor-pointer ${
                       !notification.leida ? 'bg-blue-50' : ''
                     } border-l-4 ${getPriorityColor(notification.prioridad)}`}
                   >
@@ -226,7 +172,7 @@ const NotificationDropdown: React.FC = () => {
                             }`}>
                               {notification.titulo}
                             </p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2">
                               {notification.mensaje}
                             </p>
                             <p className="text-xs text-gray-400 mt-2">
@@ -236,7 +182,7 @@ const NotificationDropdown: React.FC = () => {
 
                           {/* Botón eliminar */}
                           <button
-                            onClick={() => handleDeleteNotification(notification.id)}
+                            onClick={(e) => handleDeleteNotification(notification.id, e)}
                             className="flex-shrink-0 text-gray-400 hover:text-red-600 transition-colors"
                             aria-label="Eliminar notificación"
                           >
@@ -247,7 +193,10 @@ const NotificationDropdown: React.FC = () => {
                         {/* Botón marcar como leída */}
                         {!notification.leida && (
                           <button
-                            onClick={() => handleMarkAsRead(notification.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markAsRead(notification.id);
+                            }}
                             className="mt-2 text-xs text-blue-600 hover:text-blue-800 font-medium"
                           >
                             Marcar como leída
@@ -264,7 +213,13 @@ const NotificationDropdown: React.FC = () => {
           {/* Footer */}
           {notifications.length > 0 && (
             <div className="p-3 border-t bg-gray-50 text-center">
-              <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
+              <button 
+                onClick={() => {
+                  navigate('/estudiante/notificaciones');
+                  setIsOpen(false);
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+              >
                 Ver todas las notificaciones
               </button>
             </div>

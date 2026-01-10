@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
 import { AsistenciasService } from './asistencias.service';
-import { CreateAsistenciaDto, UpdateAsistenciaDto } from './dto/asistencia.dto';
+import { CreateAsistenciaDto, UpdateAsistenciaDto, CreateAsistenciaLoteDto } from './dto/asistencia.dto';
 import { JwtAuthGuard } from '../../auth/guards/jwt.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
@@ -20,12 +20,7 @@ export class AsistenciasController {
   // Registrar asistencias en lote
   @Post('lote')
   @Roles('administrador', 'docente')
-  async createLote(@Body() data: {
-    id_asignatura: string;
-    fecha_clase: string;
-    periodo_academico: string;
-    asistencias: Array<{ id_estudiante: string; estado: string }>;
-  }) {
+  async createLote(@Body() data: CreateAsistenciaLoteDto) {
     return await this.asistenciasService.createLote(data);
   }
 

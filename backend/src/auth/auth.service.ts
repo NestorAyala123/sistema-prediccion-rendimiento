@@ -92,11 +92,11 @@ export class AuthService {
 
     await usuario.save();
 
-    // Generar token JWT
+    // Generar token JWT con el rol correcto
     const token = this.jwtService.sign({
       sub: usuario._id.toString(),
       email: usuario.email,
-      role: usuario.rol,
+      role: usuario.rol, // 'admin' o 'docente'
     });
 
     return {
@@ -106,7 +106,7 @@ export class AuthService {
         email: usuario.email,
         nombres: usuario.nombres,
         apellidos: usuario.apellidos,
-        role: usuario.rol,
+        role: usuario.rol, // Retornar rol del schema
       },
     };
   }
@@ -181,11 +181,11 @@ export class AuthService {
         throw new UnauthorizedException('Email o contraseña inválidos');
       }
 
-      // Generar token JWT
+      // Generar token JWT con el rol correcto
       const token = this.jwtService.sign({
         sub: usuario._id.toString(),
         email: usuario.email,
-        role: usuario.rol,
+        role: usuario.rol, // 'admin' o 'docente' del schema
       });
 
       return {
@@ -195,7 +195,7 @@ export class AuthService {
           email: usuario.email,
           nombres: usuario.nombres,
           apellidos: usuario.apellidos,
-          role: usuario.rol,
+          role: usuario.rol, // Asegurar que sea 'admin' o 'docente'
         },
       };
     }

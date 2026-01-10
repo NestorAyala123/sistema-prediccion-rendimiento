@@ -5,6 +5,7 @@ import { PrediccionesService } from './predicciones.service';
 import { PrediccionRiesgo, PrediccionRiesgoSchema } from '../../schemas/prediccion-riesgo.schema';
 import { Estudiante, EstudianteSchema } from '../../schemas/estudiante.schema';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
+import { EventsModule } from '../../events/events.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { NotificacionesModule } from '../notificaciones/notificaciones.module';
       { name: Estudiante.name, schema: EstudianteSchema },
     ]),
     NotificacionesModule,
+    EventsModule,
   ],
   controllers: [PrediccionesController],
   providers: [PrediccionesService],

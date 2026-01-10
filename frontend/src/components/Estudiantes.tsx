@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { estudiantesService, CreateEstudianteDto } from '../services/api';
+import { useNavigate } from 'react-router-dom';
+import { estudiantesService, CreateEstudianteDto, Estudiante as EstudianteAPI } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSearch } from '../contexts/SearchContext';
@@ -14,15 +15,20 @@ import {
 } from '@heroicons/react/24/outline';
 
 interface Estudiante {
+  _id: string;
   id_estudiante: string;
   nombres: string;
   apellidos: string;
   email: string;
   semestre_actual?: number;
   nivel_riesgo?: string;
+  promedio_general?: number;
+  telefono?: string;
+  carrera?: string;
 }
 
 const Estudiantes: React.FC = () => {
+  const navigate = useNavigate();
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [loading, setLoading] = useState(true);
   const { searchTerm: globalSearchTerm } = useSearch();
@@ -195,9 +201,7 @@ const Estudiantes: React.FC = () => {
     }
   };
   const handleVerDetalles = (estudiante: Estudiante) => {
-    alert(
-      `${t('estudiantes.verDetallesDe')}: ${estudiante.nombres} ${estudiante.apellidos}\n\n${t('estudiantes.enDesarrollo')}`
-    );
+    navigate(`/admin/estudiante/${estudiante._id}`);
   };
 
   const handleGenerarPrediccion = (estudiante: Estudiante) => {

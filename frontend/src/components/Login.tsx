@@ -47,11 +47,18 @@ const Login: React.FC = () => {
 
       const data = await response.json();
 
+      // 🔍 DEBUG: Verificar qué rol está llegando
+      console.log('🔐 Login exitoso - Datos recibidos:', data);
+      console.log('👤 Usuario:', data.user);
+      console.log('🎭 Rol recibido:', data.user.role);
+
       // Usar la función login del contexto para actualizar el estado
       login(data.user, data.access_token);
 
       // Redirigir según el rol del usuario
-      redirectByRole(data.user.role || data.user.rol || 'estudiante');
+      const userRole = data.user.role || data.user.rol || 'estudiante';
+      console.log('🚀 Redirigiendo con rol:', userRole);
+      redirectByRole(userRole);
     } catch (err: any) {
       // Por ahora, permitir login de demostración sin backend
       console.warn('Backend de autenticación no disponible, usando demo mode');

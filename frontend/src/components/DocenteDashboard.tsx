@@ -204,7 +204,7 @@ const DocenteDashboard: React.FC = () => {
         </div>
 
         {/* Acciones rápidas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <button
             onClick={() => navigate('/docente/asistencia')}
             className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow text-left">
@@ -219,6 +219,14 @@ const DocenteDashboard: React.FC = () => {
             <ChartBarIcon className="w-10 h-10 text-purple-600 mb-3" />
             <h3 className="text-lg font-bold text-gray-900 mb-2">Registrar Calificaciones</h3>
             <p className="text-sm text-gray-600">Ingresar notas de evaluaciones</p>
+          </button>
+
+          <button
+            onClick={() => navigate('/docente/predicciones')}
+            className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow text-left">
+            <div className="w-10 h-10 mb-3 text-3xl">✨</div>
+            <h3 className="text-lg font-bold text-gray-900 mb-2">Generar Predicciones</h3>
+            <p className="text-sm text-gray-600">Analizar riesgo académico con IA</p>
           </button>
 
           <button

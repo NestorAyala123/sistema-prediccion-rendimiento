@@ -9,7 +9,16 @@ interface RoleProtectedRouteProps {
 }
 
 const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ children, allowedRoles }) => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
+
+  // Mostrar loading mientras se verifica la autenticación
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -23,7 +32,6 @@ const RoleProtectedRoute: React.FC<RoleProtectedRouteProps> = ({ children, allow
     // Redirigir al dashboard correspondiente del usuario
     return <Navigate to={getDashboardPath(userRole)} replace />;
   }
-
   return <>{children}</>;
 };
 

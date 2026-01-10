@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { estudiantesService, asignaturasService, calificacionesService } from '../services/api';
 import {
   AcademicCapIcon,
   PlusIcon,
   PencilIcon,
-  TrashIcon,
   ChartBarIcon,
   CalendarIcon,
   BookOpenIcon,
@@ -31,7 +30,6 @@ interface Calificacion {
 }
 
 const RegistroCalificaciones: React.FC = () => {
-  const { user } = useAuth();
   const [asignaturas, setAsignaturas] = useState<Asignatura[]>([]);
   const [estudiantes, setEstudiantes] = useState<Estudiante[]>([]);
   const [selectedAsignatura, setSelectedAsignatura] = useState('');
@@ -57,83 +55,49 @@ const RegistroCalificaciones: React.FC = () => {
     'Exposición',
   ];
 
+  const cargarAsignaturas = useCallback(async () => {
+    try {
+      const data = await asignaturasService.getAll();
+      setAsignaturas(data);
+    } catch (err) {
+      console.error('Error al cargar asignaturas:', err);
+      setError('Error al cargar asignaturas');
+    }
+  }, []);
+
+  const cargarEstudiantes = useCallback(async () => {
+    try {
+      const data = await estudiantesService.getAll();
+      setEstudiantes(data);
+    } catch (err) {
+      console.error('Error al cargar estudiantes:', err);
+      setError('Error al cargar estudiantes');
+    }
+  }, []);
+
+  const cargarCalificacionesPorAsignaturaYPeriodo = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await calificacionesService.getByAsignaturaYPeriodo(selectedAsignatura, periodoAcademico);
+      setCalificaciones(data);
+    } catch (err) {
+      console.error('Error al cargar calificaciones:', err);
+      setError('Error al cargar calificaciones');
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedAsignatura, periodoAcademico]);
+
   useEffect(() => {
     cargarAsignaturas();
     cargarEstudiantes();
-  }, []);
+  }, [cargarAsignaturas, cargarEstudiantes]);
 
   useEffect(() => {
     if (selectedAsignatura && periodoAcademico) {
       cargarCalificacionesPorAsignaturaYPeriodo();
     }
-  }, [selectedAsignatura, periodoAcademico]);
-
-  const cargarAsignaturas = async () => {
-    try {
-      // Aquí conectarás con tu API
-      // const response = await fetch('http://localhost:3001/asignaturas', {
-      //   headers: { Authorization: `Bearer ${token}` }
-      // });
-      // const data = await response.json();
-      
-      // Datos de demostración
-      setAsignaturas([
-        { id_asignatura: 'MAT-101', nombre_asignatura: 'Matemáticas I', creditos: 4 },
-        { id_asignatura: 'FIS-101', nombre_asignatura: 'Física I', creditos: 4 },
-        { id_asignatura: 'PRG-101', nombre_asignatura: 'Programación I', creditos: 5 },
-        { id_asignatura: 'BDD-101', nombre_asignatura: 'Base de Datos', creditos: 4 },
-      ]);
-    } catch (err) {
-      console.error('Error al cargar asignaturas:', err);
-    }
-  };
-
-  const cargarEstudiantes = async () => {
-    try {
-      // Aquí conectarás con tu API
-      // const response = await fetch('http://localhost:3001/estudiantes', {
-      //   headers: { Authorization: `Bearer ${token}` }
-      // });
-      // const data = await response.json();
-      
-      // Datos de demostración
-      setEstudiantes([
-        { id_estudiante: 'EST-001', nombres: 'Juan', apellidos: 'Pérez', email: 'juan@test.com' },
-        { id_estudiante: 'EST-002', nombres: 'María', apellidos: 'García', email: 'maria@test.com' },
-        { id_estudiante: 'EST-003', nombres: 'Carlos', apellidos: 'López', email: 'carlos@test.com' },
-      ]);
-    } catch (err) {
-      console.error('Error al cargar estudiantes:', err);
-    }
-  };
-
-  const cargarCalificacionesPorAsignaturaYPeriodo = async () => {
-    try {
-      setLoading(true);
-      // Aquí conectarás con tu API
-      // const response = await fetch(
-      //   `http://localhost:3001/calificaciones/asignatura/${selectedAsignatura}/periodo/${periodoAcademico}`,
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
-      // const data = await response.json();
-      
-      // Datos de demostración
-      setCalificaciones([
-        {
-          estudiante: { id: 'EST-001', nombres: 'Juan', apellidos: 'Pérez', email: 'juan@test.com' },
-          calificaciones: [
-            { id_calificacion: '1', tipo_evaluacion: 'Parcial 1', nota: 85, fecha_registro: '2025-01-15' },
-            { id_calificacion: '2', tipo_evaluacion: 'Deber', nota: 90, fecha_registro: '2025-01-20' },
-          ],
-          promedio: 87.5,
-        },
-      ]);
-    } catch (err) {
-      console.error('Error al cargar calificaciones:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [selectedAsignatura, periodoAcademico, cargarCalificacionesPorAsignaturaYPeriodo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,31 +118,28 @@ const RegistroCalificaciones: React.FC = () => {
     try {
       setLoading(true);
       
-      // Aquí conectarás con tu API
-      // const response = await fetch('http://localhost:3001/calificaciones/por-periodo', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     Authorization: `Bearer ${token}`,
-      //   },
-      //   body: JSON.stringify({
-      //     id_estudiante: selectedEstudiante,
-      //     id_asignatura: selectedAsignatura,
-      //     periodo_academico: periodoAcademico,
-      //     tipo_evaluacion: tipoEvaluacion,
-      //     nota: notaNum,
-      //   }),
-      // });
+      await calificacionesService.createPorPeriodo({
+        id_estudiante: selectedEstudiante,
+        id_asignatura: selectedAsignatura,
+        periodo_academico: periodoAcademico,
+        tipo_evaluacion: tipoEvaluacion,
+        nota: notaNum,
+      });
 
-      // if (!response.ok) throw new Error('Error al registrar calificación');
-
-      setSuccess('Calificación registrada exitosamente');
+      setSuccess('✅ Calificación registrada exitosamente');
+      setSelectedEstudiante('');
       setTipoEvaluacion('');
       setNota('');
       setShowForm(false);
-      cargarCalificacionesPorAsignaturaYPeriodo();
+      
+      // Recargar calificaciones
+      setTimeout(() => {
+        cargarCalificacionesPorAsignaturaYPeriodo();
+        setSuccess('');
+      }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Error al registrar calificación');
+      console.error('Error al registrar calificación:', err);
+      setError(err.response?.data?.message || 'Error al registrar calificación');
     } finally {
       setLoading(false);
     }

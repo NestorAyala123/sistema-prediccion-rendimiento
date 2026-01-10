@@ -23,21 +23,26 @@ import DocenteDashboard from './components/DocenteDashboard';
 import RegistroCalificaciones from './components/RegistroCalificaciones';
 import AsistenciaRegistro from './components/AsistenciaRegistro';
 import EstudiantesList from './components/EstudiantesList';
+import EstudianteDetalle from './components/EstudianteDetalle';
+import PrediccionDetalle from './components/PrediccionDetalle';
+import GenerarPredicciones from './components/GenerarPredicciones';
 import ToastNotification from './components/ToastNotification';
 import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { SearchProvider } from './contexts/SearchContext';
 import { RealTimeProvider } from './contexts/RealTimeContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
         <RealTimeProvider>
-          <LanguageProvider>
-            <SearchProvider>
-              <ToastNotification />
-              <Routes>
+          <NotificationProvider>
+            <LanguageProvider>
+              <SearchProvider>
+                <ToastNotification />
+                <Routes>
             {/* Rutas públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -51,6 +56,7 @@ function App() {
                     <Layout>
                       <Routes>
                         <Route path="/dashboard" element={<EstudianteDashboard />} />
+                        <Route path="/prediccion" element={<PrediccionDetalle />} />
                         <Route path="*" element={<Navigate to="/estudiante/dashboard" replace />} />
                       </Routes>
                     </Layout>
@@ -71,6 +77,8 @@ function App() {
                         <Route path="/calificaciones" element={<RegistroCalificaciones />} />
                         <Route path="/asistencia" element={<AsistenciaRegistro />} />
                         <Route path="/estudiantes" element={<EstudiantesList />} />
+                        <Route path="/estudiante/:id" element={<EstudianteDetalle />} />
+                        <Route path="/predicciones" element={<GenerarPredicciones />} />
                         <Route path="*" element={<Navigate to="/docente/dashboard" replace />} />
                       </Routes>
                     </Layout>
@@ -89,6 +97,7 @@ function App() {
                       <Routes>
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/estudiantes" element={<Estudiantes />} />
+                        <Route path="/estudiante/:id" element={<EstudianteDetalle />} />
                         <Route path="/predicciones" element={<Predicciones />} />
                         <Route path="/calificaciones" element={<RegistroCalificaciones />} />
                         <Route path="/soporte" element={<Soporte />} />
@@ -115,6 +124,7 @@ function App() {
             </Routes>
           </SearchProvider>
         </LanguageProvider>
+          </NotificationProvider>
         </RealTimeProvider>
       </AuthProvider>
     </Router>

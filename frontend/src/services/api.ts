@@ -13,13 +13,32 @@ const api = axios.create({
 // Interceptor para agregar token JWT a las peticiones
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // Intentar obtener token de sessionStorage primero, luego localStorage
+    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
+);
+
+// Interceptor para manejar respuestas y errores
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    // Si es error 401 (no autorizado), NO forzar logout automáticamente
+    // Dejar que cada componente maneje sus propios errores de autenticación
+    if (error.response?.status === 401) {
+      console.warn('⚠️ Error 401 - No autorizado. Verifica tu sesión.');
+      // Solo limpiar si es la ruta de login/auth que responde con 401
+      if (error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register')) {
+        // No hacer nada, es un error de credenciales incorrectas
+      }
+    }
+    
+    return Promise.reject(error);
+  }
 );
 
 export interface Estudiante {

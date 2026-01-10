@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsDate, IsEnum, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsDate, IsEnum, MaxLength, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum EstadoAsistencia {
@@ -30,4 +30,35 @@ export class UpdateAsistenciaDto {
   @IsDate()
   @Type(() => Date)
   fecha_clase?: Date;
+}
+
+// DTO para asistencia individual dentro del lote
+export class AsistenciaItemDto {
+  @IsString()
+  @IsNotEmpty()
+  id_estudiante: string;
+
+  @IsString()
+  @IsNotEmpty()
+  estado: string;
+}
+
+// DTO para crear asistencias en lote
+export class CreateAsistenciaLoteDto {
+  @IsString()
+  @IsNotEmpty()
+  id_asignatura: string;
+
+  @IsString()
+  @IsNotEmpty()
+  fecha_clase: string;
+
+  @IsString()
+  @IsNotEmpty()
+  periodo_academico: string;
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => AsistenciaItemDto)
+  asistencias: AsistenciaItemDto[];
 }

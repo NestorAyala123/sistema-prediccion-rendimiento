@@ -33,8 +33,21 @@ export class AsistenciasService {
     const resultados = [];
     const errores = [];
 
+    // Verificar que la asignatura existe
+    const asignatura = await this.asignaturasModel.findOne({ id_asignatura: data.id_asignatura }).exec();
+    if (!asignatura) {
+      throw new NotFoundException(`Asignatura ${data.id_asignatura} no encontrada`);
+    }
+
     for (const asist of data.asistencias) {
       try {
+        // Verificar que el estudiante existe
+        const estudiante = await this.estudiantesModel.findOne({ id_estudiante: asist.id_estudiante }).exec();
+        if (!estudiante) {
+          errores.push({ id_estudiante: asist.id_estudiante, error: 'Estudiante no encontrado' });
+          continue;
+        }
+
         // Verificar si ya existe registro
         const existente = await this.asistenciasModel
           .findOne({
@@ -48,8 +61,18 @@ export class AsistenciasService {
         if (existente) {
           // Actualizar el registro existente
           existente.estado = asist.estado;
-          await existente.save();
+          const actualizado = await existente.save();
           resultados.push({ id_estudiante: asist.id_estudiante, actualizado: true });
+
+          // 🔴 Emitir evento individual de actualización
+          this.eventsGateway.emitAsistenciaActualizada({
+            id_estudiante: asist.id_estudiante,
+            id_asignatura: data.id_asignatura,
+            asignatura_nombre: asignatura.nombre_asignatura,
+            fecha_clase: data.fecha_clase,
+            asistio: asist.estado === 'Presente',
+            estado: asist.estado,
+          });
         } else {
           // Crear nuevo registro
           const nuevaAsistencia = new this.asistenciasModel({
@@ -59,19 +82,29 @@ export class AsistenciasService {
             fecha_clase: fecha,
             estado: asist.estado,
           });
-          await nuevaAsistencia.save();
+          const guardado = await nuevaAsistencia.save();
           resultados.push({ id_estudiante: asist.id_estudiante, creado: true });
+
+          // 🔴 Emitir evento individual de creación
+          this.eventsGateway.emitAsistenciaCreada({
+            id_estudiante: asist.id_estudiante,
+            id_asignatura: data.id_asignatura,
+            asignatura_nombre: asignatura.nombre_asignatura,
+            fecha_clase: data.fecha_clase,
+            asistio: asist.estado === 'Presente',
+            estado: asist.estado,
+          });
         }
       } catch (error) {
+        console.error(`Error procesando asistencia para ${asist.id_estudiante}:`, error);
         errores.push({ id_estudiante: asist.id_estudiante, error: error.message });
       }
     }
 
-    // 🔴 Emitir evento en tiempo real
-    const asignatura = await this.asignaturasModel.findOne({ id_asignatura: data.id_asignatura }).exec();
+    // 🔴 Emitir evento en tiempo real de lote completo
     this.eventsGateway.emitAsistenciaLote({
       id_asignatura: data.id_asignatura,
-      asignatura_nombre: asignatura?.nombre_asignatura || '',
+      asignatura_nombre: asignatura.nombre_asignatura,
       fecha_clase: data.fecha_clase,
       periodo_academico: data.periodo_academico,
       total: data.asistencias.length,

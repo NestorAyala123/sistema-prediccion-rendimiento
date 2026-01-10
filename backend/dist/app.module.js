@@ -22,6 +22,7 @@ const inscripciones_module_1 = require("./modules/inscripciones/inscripciones.mo
 const asistencias_module_1 = require("./modules/asistencias/asistencias.module");
 const auditoria_module_1 = require("./modules/auditoria/auditoria.module");
 const notificaciones_module_1 = require("./modules/notificaciones/notificaciones.module");
+const events_module_1 = require("./events/events.module");
 const usuario_schema_1 = require("./schemas/usuario.schema");
 const estudiante_schema_1 = require("./schemas/estudiante.schema");
 const asignatura_schema_1 = require("./schemas/asignatura.schema");
@@ -55,6 +56,9 @@ exports.AppModule = AppModule = __decorate([
             asistencias_module_1.AsistenciasModule,
             predicciones_module_1.PrediccionesModule,
             soporte_module_1.SoporteModule,
+            auditoria_module_1.AuditoriaModule,
+            notificaciones_module_1.NotificacionesModule,
+            events_module_1.EventsModule,
             auditoria_module_1.AuditoriaModule,
             notificaciones_module_1.NotificacionesModule,
         ],

@@ -5,6 +5,7 @@ import { PrediccionRiesgo, PrediccionRiesgoDocument } from '../../schemas/predic
 import { Estudiante, EstudianteDocument } from '../../schemas/estudiante.schema';
 import axios from 'axios';
 import { NotificacionesService } from '../notificaciones/notificaciones.service';
+import { EventsGateway } from '../../events/events.gateway';
 
 @Injectable()
 export class PrediccionesService {
@@ -16,6 +17,7 @@ export class PrediccionesService {
     @InjectModel(Estudiante.name)
     private estudiantesModel: Model<EstudianteDocument>,
     private notificacionesService: NotificacionesService,
+    private eventsGateway: EventsGateway,
   ) {
     // Usar variable de entorno o localhost por defecto
     this.predictorUrl = process.env.PREDICTOR_API_URL || 'http://localhost:8000';
@@ -126,8 +128,8 @@ export class PrediccionesService {
         console.error('Error al crear notificación de predicción:', notifError);
       }
 
-      // Devolver predicción completa con datos del estudiante y de la IA
-      return {
+      // Preparar datos completos de la predicción
+      const prediccionCompleta = {
         id_prediccion: prediccionGuardada._id,
         id_estudiante: prediccionGuardada.id_estudiante,
         nombres: estudiante.nombres,
@@ -142,6 +144,20 @@ export class PrediccionesService {
         recomendaciones: prediccionIA.recomendaciones,
         modelo_version: prediccionIA.modelo_version,
       };
+
+      // 🔥 Emitir evento en tiempo real
+      this.eventsGateway.emitPrediccionCreada(prediccionCompleta);
+      
+      // 🔔 Emitir notificación específica para el estudiante
+      this.eventsGateway.emitNotification({
+        type: prediccionGuardada.nivel_riesgo.toLowerCase() === 'alto' ? 'warning' : 
+              prediccionGuardada.nivel_riesgo.toLowerCase() === 'medio' ? 'info' : 'success',
+        message: `Nueva predicción de riesgo: ${prediccionGuardada.nivel_riesgo}`,
+        userId: estudiante._id.toString(),
+      });
+
+      // Devolver predicción completa con datos del estudiante y de la IA
+      return prediccionCompleta;
     } catch (error) {
       console.error('Error al llamar al microservicio de predicción:', error.message);
       
@@ -168,7 +184,8 @@ export class PrediccionesService {
         console.error('Error al crear notificación de predicción:', notifError);
       }
 
-      return {
+      // Preparar datos completos
+      const prediccionCompleta = {
         id_prediccion: prediccionGuardada._id,
         id_estudiante: prediccionGuardada.id_estudiante,
         nombres: estudiante.nombres,
@@ -179,6 +196,19 @@ export class PrediccionesService {
         estado_prediccion: prediccionGuardada.estado_prediccion,
         advertencia: 'Predicción generada con lógica de respaldo (microservicio IA no disponible)',
       };
+
+      // 🔥 Emitir evento en tiempo real (fallback)
+      this.eventsGateway.emitPrediccionCreada(prediccionCompleta);
+      
+      // 🔔 Emitir notificación para el estudiante
+      this.eventsGateway.emitNotification({
+        type: prediccionGuardada.nivel_riesgo.toLowerCase() === 'alto' ? 'warning' : 
+              prediccionGuardada.nivel_riesgo.toLowerCase() === 'medio' ? 'info' : 'success',
+        message: `Nueva predicción de riesgo: ${prediccionGuardada.nivel_riesgo}`,
+        userId: estudiante._id.toString(),
+      });
+
+      return prediccionCompleta;
     }
   }
 

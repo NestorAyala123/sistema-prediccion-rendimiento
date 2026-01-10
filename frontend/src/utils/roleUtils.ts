@@ -15,6 +15,9 @@ export const normalizeRole = (role: string | undefined | null): UserRole => {
   
   const normalized = role.toLowerCase().trim();
   
+  // 🔍 DEBUG
+  console.log('🔄 Normalizando rol:', role, '→', normalized);
+  
   // Mapear variantes al rol normalizado
   if (normalized === 'administrador' || normalized === 'admin') {
     return 'admin';
